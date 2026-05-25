@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZoneSync — Live World Clock & Timezone Converter</title>
+  <meta name="description" content="ZoneSync: Free live world clock showing current time in every timezone. Compare cities, convert time zones, and plan across the globe in real time." />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=Nunito:wght@400;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── THEME TOKENS ── */
+    :root {
+      --accent: #7c6dfa;
+      --accent2: #f0a05a;
+      --red: #f05a5a;
+      --green: #4ade80;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #18181f;
+      --border: #2a2a36;
+      --text: #f0eff8;
+      --muted: #6b6a7e;
+      --toggle-icon: "☀️";
+      --slider-track: #18181f;
+      --card-glow: rgba(124,109,250,0.05);
+    }
+
+    [data-theme="light"] {
+      --bg: #f4f4f8;
+      --surface: #ffffff;
+      --surface2: #f0f0f5;
+      --border: #dddde8;
+      --text: #0f0f1a;
+      --muted: #8888a0;
+      --toggle-icon: "🌙";
+      --slider-track: #e4e4ee;
+      --card-glow: rgba(124,109,250,0.03);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 40px 24px 80px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124,109,250,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,109,250,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.3s;
+    }
+
+    [data-theme="light"] body::before { opacity: 0.5; }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1140px;
+      margin: 0 auto;
+    }
+
+    /* ── HEADER ── */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .brand h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
+    }
+
+    .brand h1 .logo-icon {
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .brand h1 .brand-name { color: var(--text); }
+    .brand h1 .brand-dot { color: var(--accent); }
+
+    .brand h1 span.pulse-dot {
+      display: inline-block;
+      width: 9px; height: 9px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite;
+      margin-left: 2px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.75); }
+    }
+
+    .brand-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 5px;
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* Live badge */
+    #timeSourceBadge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-top: 8px;
+      transition: all 0.3s;
+    }
+
+    #timeSourceBadge.live {
+      border-color: rgba(124,109,250,0.4);
+      color: var(--accent);
+      background: rgba(124,109,250,0.07);
+    }
+
+    #timeSourceBadge .indicator {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+
+    #timeSourceBadge.live .indicator {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    /* ── HEADER RIGHT: search + toggle ── */
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
+
+    /* ── THEME TOGGLE ── */
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .theme-toggle-label {
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+    }
+
+    .toggle-track {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .toggle-track.on {
+      background: rgba(124,109,250,0.2);
+      border-color: rgba(124,109,250,0.4);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s;
+      font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .toggle-track.on .toggle-thumb {
+      transform: translateX(20px);
+      background: var(--accent);
+    }
+
+    /* ── SEARCH ── */
+    .search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px 13px 44px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+    }
+
+    .search-wrap input::placeholder { color: var(--muted); }
+
+    .search-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,109,250,0.12);
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      width: 16px; height: 16px;
+      pointer-events: none;
+    }
+
+    #suggestions {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    #suggestions .suggestion-item {
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.15s;
+      color: var(--text);
+    }
+
+    #suggestions .suggestion-item:hover { background: rgba(124,109,250,0.1); }
+
+    #suggestions .suggestion-item .tz-hint {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── TIMELINE SCRUBBER ── */
+    .timeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .timeline-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .timeline-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    #sliderDisplay {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .tick-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
+
+    .tick-row span {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    input[type="range"].time-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--slider-track);
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    input[type="range"].time-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 10px rgba(124,109,250,0.4);
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.3s;
+      margin-top: -8px;
+    }
+
+    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+    .reset-btn {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .reset-btn button {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .reset-btn button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── CLOCK GRID ── */
+    .clock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .clock-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: border-color 0.2s, transform 0.2s, background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .clock-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 90% 10%, var(--card-glow), transparent 60%);
+      pointer-events: none;
+    }
+
+    .clock-card:hover {
+      border-color: rgba(124,109,250,0.3);
+      transform: translateY(-3px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .city-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .tz-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      margin-top: 3px;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      flex-shrink: 0;
+    }
+
+    .badge-day { background: #fef3c7; color: #92610a; }
+    .badge-night { background: #1a1a2e; color: #a9a6d8; border: 1px solid #2e2e50; }
+
+    [data-theme="light"] .badge-night {
+      background: #2a2a50;
+      color: #c0bdee;
+    }
+
+    .time-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+    }
+
+    .time-big {
+      font-family: 'Nunito', sans-serif;
+      font-size: 44px;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .time-seconds {
+      font-family: 'Nunito', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+    }
+
+    .time-ampm {
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .day-pill {
+      background: var(--surface2);
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .day-pill.ahead { color: var(--accent2); border: 1px solid rgba(240,160,90,0.25); }
+    .day-pill.behind { color: var(--red); border: 1px solid rgba(240,90,90,0.2); }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      color: var(--red);
+      font-size: 11px;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+      padding: 2px 6px;
+    }
+
+    .clock-card:hover .remove-btn { opacity: 1; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 24px 16px 60px; }
+      header { flex-direction: column; }
+      .header-right { align-items: flex-start; width: 100%; }
+      .search-wrap { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="brand">
+      <h1>
+        <span class="logo-icon">🌐</span>
+        <span class="brand-name">Zone<span class="brand-dot">Sync</span></span>
+        <span class="pulse-dot"></span>
+      </h1>
+      <p class="brand-sub">// live world clock &amp; timezone converter</p>
+      <div id="timeSourceBadge">
+        <span class="indicator"></span>
+        <span id="badgeText">fetching online time…</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Theme toggle -->
+      <div class="theme-toggle" onclick="toggleTheme()" title="Switch theme">
+        <span class="theme-toggle-label" id="themeLabel">Light mode</span>
+        <div class="toggle-track" id="toggleTrack">
+          <div class="toggle-thumb" id="toggleThumb">☀️</div>
+        </div>
+      </div>
+
+      <!-- Search -->
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" id="citySearch" placeholder="Add a city… (e.g. Paris, Berlin, Seoul)"
+          autocomplete="off" oninput="showSuggestions(this.value)" onkeydown="handleSearchKey(event)" />
+        <div id="suggestions"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="timeline-card">
+    <div class="timeline-top">
+      <span class="timeline-label">⏱ Time Scrubber — drag to explore</span>
+      <span id="sliderDisplay">—</span>
+    </div>
+    <div class="tick-row">
+      <span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11:59 PM</span>
+    </div>
+    <input type="range" id="masterSlider" class="time-slider" min="0" max="1439" value="0"
+      oninput="onSliderChange()" />
+    <div class="reset-btn">
+      <button onclick="resetToNow()">↺ Reset to current time</button>
+    </div>
+  </div>
+
+  <div class="clock-grid" id="clockGrid"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── THEME ──────────────────────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  const track = document.getElementById('toggleTrack');
+  const thumb = document.getElementById('toggleThumb');
+  const label = document.getElementById('themeLabel');
+  if (isDark) {
+    track.classList.add('on');
+    thumb.textContent = '🌙';
+    label.textContent = 'Dark mode';
+  } else {
+    track.classList.remove('on');
+    thumb.textContent = '☀️';
+    label.textContent = 'Light mode';
+  }
+  // Save preference
+  localStorage.setItem('zonesync-theme', isDark ? 'light' : 'dark');
+}
+
+// Load saved theme on start
+(function() {
+  const saved = localStorage.getItem('zonesync-theme');
+  if (saved === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    setTimeout(() => {
+      document.getElementById('toggleTrack').classList.add('on');
+      document.getElementById('toggleThumb').textContent = '🌙';
+      document.getElementById('themeLabel').textContent = 'Dark mode';
+    }, 0);
+  }
+})();
+
+// ── CITY DATABASE ──────────────────────────────
+const ALL_CITIES = [
+  { name: "Bengaluru",    zone: "IST",   iana: "Asia/Kolkata" },
+  { name: "Mumbai",       zone: "IST",   iana: "Asia/Kolkata" },
+  { name: "Delhi",        zone: "IST",   iana: "Asia/Kolkata" },
+  { name: "London",       zone: "GMT/BST", iana: "Europe/London" },
+  { name: "New York",     zone: "ET",    iana: "America/New_York" },
+  { name: "Los Angeles",  zone: "PT",    iana: "America/Los_Angeles" },
+  { name: "Tokyo",        zone: "JST",   iana: "Asia/Tokyo" },
+  { name: "Paris",        zone: "CET",   iana: "Europe/Paris" },
+  { name: "Berlin",       zone: "CET",   iana: "Europe/Berlin" },
+  { name: "Dubai",        zone: "GST",   iana: "Asia/Dubai" },
+  { name: "Singapore",    zone: "SGT",   iana: "Asia/Singapore" },
+  { name: "Sydney",       zone: "AEST",  iana: "Australia/Sydney" },
+  { name: "Chicago",      zone: "CT",    iana: "America/Chicago" },
+  { name: "Honolulu",     zone: "HST",   iana: "Pacific/Honolulu" },
+  { name: "Seoul",        zone: "KST",   iana: "Asia/Seoul" },
+  { name: "Shanghai",     zone: "CST",   iana: "Asia/Shanghai" },
+  { name: "Hong Kong",    zone: "HKT",   iana: "Asia/Hong_Kong" },
+  { name: "Toronto",      zone: "ET",    iana: "America/Toronto" },
+  { name: "São Paulo",    zone: "BRT",   iana: "America/Sao_Paulo" },
+  { name: "Johannesburg", zone: "SAST",  iana: "Africa/Johannesburg" },
+  { name: "Cairo",        zone: "EET",   iana: "Africa/Cairo" },
+  { name: "Moscow",       zone: "MSK",   iana: "Europe/Moscow" },
+  { name: "Amsterdam",    zone: "CET",   iana: "Europe/Amsterdam" },
+  { name: "Zurich",       zone: "CET",   iana: "Europe/Zurich" },
+  { name: "Istanbul",     zone: "TRT",   iana: "Europe/Istanbul" },
+  { name: "Auckland",     zone: "NZST",  iana: "Pacific/Auckland" },
+  { name: "Denver",       zone: "MT",    iana: "America/Denver" },
+  { name: "Mexico City",  zone: "CST",   iana: "America/Mexico_City" },
+  { name: "Buenos Aires", zone: "ART",   iana: "America/Argentina/Buenos_Aires" },
+  { name: "Nairobi",      zone: "EAT",   iana: "Africa/Nairobi" },
+  { name: "Karachi",      zone: "PKT",   iana: "Asia/Karachi" },
+  { name: "Dhaka",        zone: "BST",   iana: "Asia/Dhaka" },
+  { name: "Colombo",      zone: "IST",   iana: "Asia/Colombo" },
+  { name: "Kathmandu",    zone: "NPT",   iana: "Asia/Kathmandu" },
+  { name: "Bangkok",      zone: "ICT",   iana: "Asia/Bangkok" },
+  { name: "Jakarta",      zone: "WIB",   iana: "Asia/Jakarta" },
+  { name: "Riyadh",       zone: "AST",   iana: "Asia/Riyadh" },
+  { name: "Tel Aviv",     zone: "IST",   iana: "Asia/Jerusalem" },
+  { name: "Lagos",        zone: "WAT",   iana: "Africa/Lagos" },
+  { name: "Casablanca",   zone: "WET",   iana: "Africa/Casablanca" },
+];
+
+// ── STATE ──────────────────────────────────────
+let trackedCities = [
+  ALL_CITIES.find(c => c.name === "Bengaluru"),
+  ALL_CITIES.find(c => c.name === "London"),
+  ALL_CITIES.find(c => c.name === "New York"),
+  ALL_CITIES.find(c => c.name === "Los Angeles"),
+  ALL_CITIES.find(c => c.name === "Tokyo"),
+];
+
+let baseUTCms = null;
+let baseLocalMs = null;
+let usingOnlineTime = false;
+let scrubOffsetMinutes = 0;
+let isScrubbing = false;
+let tickInterval = null;
+
+// ── ONLINE TIME FETCH ──────────────────────────
+async function fetchOnlineTime() {
+  const badge = document.getElementById('timeSourceBadge');
+  const badgeText = document.getElementById('badgeText');
+
+  const apis = [
+    { url: 'https://worldtimeapi.org/api/timezone/UTC', parse: d => new Date(d.utc_datetime).getTime() },
+    { url: 'https://timeapi.io/api/Time/current/zone?timeZone=UTC', parse: d => new Date(d.dateTime + 'Z').getTime() },
+  ];
+
+  for (const api of apis) {
+    try {
+      const t0 = performance.now();
+      const res = await fetch(api.url);
+      const json = await res.json();
+      const t1 = performance.now();
+      const rtt = (t1 - t0) / 2;
+      baseUTCms = api.parse(json) + rtt;
+      baseLocalMs = performance.now();
+      usingOnlineTime = true;
+      badge.classList.add('live');
+      badgeText.textContent = 'online time · worldtimeapi.org';
+      return;
+    } catch (e) {}
+  }
+
+  baseUTCms = Date.now();
+  baseLocalMs = performance.now();
+  usingOnlineTime = false;
+  badge.classList.remove('live');
+  badgeText.textContent = 'fallback: local machine time';
+}
+
+function getCurrentUTCms() {
+  if (baseUTCms === null) return Date.now();
+  return baseUTCms + (performance.now() - baseLocalMs);
+}
+
+function getCityMinutes(city, utcMs) {
+  const date = new Date(utcMs + scrubOffsetMinutes * 60_000);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: city.iana,
+    hour: 'numeric', minute: 'numeric', second: 'numeric',
+    hour12: false, day: 'numeric'
+  }).formatToParts(date);
+  const get = type => parseInt(parts.find(p => p.type === type)?.value || '0');
+  let h = get('hour'); const m = get('minute'); const s = get('second');
+  if (h === 24) h = 0;
+  return { hours: h, minutes: m, seconds: s };
+}
+
+function getDayOffset(city, utcMs) {
+  const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
+  const d = new Date(effectiveMs);
+  const fmt = tz => new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+  return Math.round((new Date(fmt(city.iana)) - new Date(fmt('UTC'))) / 86_400_000);
+}
+
+function fmt2(n) { return String(n).padStart(2, '0'); }
+
+function getUTCOffsetStr(ianaZone) {
+  try {
+    const p = new Intl.DateTimeFormat('en', { timeZone: ianaZone, timeZoneName: 'shortOffset' }).formatToParts(new Date());
+    return (p.find(x => x.type === 'timeZoneName')?.value || '').replace('GMT', 'UTC');
+  } catch { return ''; }
+}
+
+// ── RENDER ──────────────────────────────────────
+function renderClocks() {
+  if (baseUTCms === null) return;
+  const utcMs = getCurrentUTCms();
+  const grid = document.getElementById('clockGrid');
+  const sliderDisplay = document.getElementById('sliderDisplay');
+
+  const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
+  const disp = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: true
+  }).format(new Date(effectiveMs));
+
+  sliderDisplay.textContent = isScrubbing
+    ? `Scrubbing: UTC ${disp} (${scrubOffsetMinutes >= 0 ? '+' : ''}${scrubOffsetMinutes}m)`
+    : `Live — UTC ${disp}`;
+
+  grid.innerHTML = '';
+  trackedCities.forEach((city, i) => {
+    const { hours, minutes, seconds } = getCityMinutes(city, utcMs);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const h12 = (hours % 12) || 12;
+    const timeMain = `${h12}:${fmt2(minutes)}`;
+    const isDay = hours >= 6 && hours < 18;
+    const dayOff = getDayOffset(city, utcMs);
+    const utcStr = getUTCOffsetStr(city.iana);
+
+    let dayPillHtml = `<span class="day-pill">Same day</span>`;
+    if (dayOff > 0) dayPillHtml = `<span class="day-pill ahead">+${dayOff} day</span>`;
+    if (dayOff < 0) dayPillHtml = `<span class="day-pill behind">${dayOff} day</span>`;
+
+    grid.innerHTML += `
+      <div class="clock-card">
+        <div class="card-header">
+          <div>
+            <div class="city-name">${city.name}</div>
+            <div class="tz-label">${city.zone} · ${utcStr}</div>
+          </div>
+          <span class="badge ${isDay ? 'badge-day' : 'badge-night'}">${isDay ? 'Day' : 'Night'}</span>
+        </div>
+        <div class="time-row">
+          <span class="time-big">${timeMain}</span>
+          <span class="time-seconds">${fmt2(seconds)}</span>
+          <span class="time-ampm">${ampm}</span>
+        </div>
+        <div class="card-footer">
+          ${dayPillHtml}
+          <button class="remove-btn" onclick="removeCity(${i})">✕ Remove</button>
+        </div>
+      </div>`;
+  });
+}
+
+// ── SLIDER ──────────────────────────────────────
+function syncSliderToNow() {
+  if (baseUTCms === null) return;
+  const d = new Date(getCurrentUTCms());
+  document.getElementById('masterSlider').value = d.getUTCHours() * 60 + d.getUTCMinutes();
+}
+
+function onSliderChange() {
+  if (baseUTCms === null) return;
+  isScrubbing = true;
+  const sliderVal = parseInt(document.getElementById('masterSlider').value);
+  const d = new Date(getCurrentUTCms());
+  const nowUTC = d.getUTCHours() * 60 + d.getUTCMinutes();
+  scrubOffsetMinutes = sliderVal - nowUTC;
+  renderClocks();
+}
+
+function resetToNow() {
+  isScrubbing = false;
+  scrubOffsetMinutes = 0;
+  syncSliderToNow();
+  renderClocks();
+}
+
+// ── SEARCH ──────────────────────────────────────
+function showSuggestions(val) {
+  const box = document.getElementById('suggestions');
+  const q = val.trim().toLowerCase();
+  if (!q) { box.style.display = 'none'; return; }
+  const matches = ALL_CITIES.filter(c =>
+    c.name.toLowerCase().includes(q) && !trackedCities.some(t => t.name === c.name)
+  ).slice(0, 6);
+  if (!matches.length) { box.style.display = 'none'; return; }
+  box.innerHTML = matches.map(c =>
+    `<div class="suggestion-item" onclick="addCity('${c.name}')">
+      <span>${c.name}</span>
+      <span class="tz-hint">${c.zone}</span>
+    </div>`
+  ).join('');
+  box.style.display = 'block';
+}
+
+function handleSearchKey(e) {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim().toLowerCase();
+    const found = ALL_CITIES.find(c => c.name.toLowerCase() === q && !trackedCities.some(t => t.name === c.name));
+    if (found) addCity(found.name);
+    else showToast(`"${e.target.value.trim()}" not found. Try typing to see suggestions.`);
+  }
+  if (e.key === 'Escape') document.getElementById('suggestions').style.display = 'none';
+}
+
+function addCity(name) {
+  const city = ALL_CITIES.find(c => c.name === name);
+  if (city && !trackedCities.some(c => c.name === name)) {
+    trackedCities.push(city);
+    renderClocks();
+  }
+  document.getElementById('citySearch').value = '';
+  document.getElementById('suggestions').style.display = 'none';
+}
+
+function removeCity(i) {
+  trackedCities.splice(i, 1);
+  renderClocks();
+}
+
+// ── TOAST ──────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display = 'none';
+});
+
+// ── INIT ──────────────────────────────────────
+(async () => {
+  await fetchOnlineTime();
+  syncSliderToNow();
+  renderClocks();
+  setInterval(() => {
+    if (!isScrubbing) syncSliderToNow();
+    renderClocks();
+  }, 1000);
+  setInterval(fetchOnlineTime, 10 * 60 * 1000);
+})();
+</script>
+</body>
+</html>
