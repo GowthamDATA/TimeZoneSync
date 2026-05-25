@@ -16,939 +16,538 @@
     }
 
     [data-theme="dark"] {
-      --bg: #0a0a0f;    /* [cite: 1] */
-      --surface: #111118;   /* [cite: 1] */
-      --surface2: #18181f;  /* [cite: 1] */
-      --border: #2a2a36;   /* [cite: 1] */
-      --text: #f0eff8;     /* [cite: 1] */
-      --muted: #6b6a7e;    /* [cite: 1] */
-      --toggle-icon: "☀️"; /* [cite: 2] */
-      --slider-track: #18181f; /* [cite: 2] */
-      --card-glow: rgba(124,109,250,0.05); /* [cite: 2] */
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #18181f;
+      --border: #2a2a36;
+      --text: #f0eff8;
+      --muted: #6b6a7e;
+      --toggle-icon: "☀️";
+      --slider-track: #18181f;
+      --card-glow: rgba(124,109,250,0.05);
+      --day-bg: #1e1b10;
+      --night-bg: #0f0f18;
     }
 
     [data-theme="light"] {
-      --bg: #f4f4f8;    /* [cite: 2] */
-      --surface: #ffffff;   /* [cite: 2] */
-      --surface2: #f0f0f5;  /* [cite: 2] */
-      --border: #dddde8;   /* [cite: 2] */
-      --text: #0f0f1a;     /* [cite: 2] */
-      --muted: #8888a0;    /* [cite: 3] */
-      --toggle-icon: "🌙"; /* [cite: 3] */
-      --slider-track: #e4e4ee; /* [cite: 3] */
-      --card-glow: rgba(124,109,250,0.03); /* [cite: 3] */
+      --bg: #f4f4f8;
+      --surface: #ffffff;
+      --surface2: #f0f0f5;
+      --border: #dddde8;
+      --text: #0f0f1a;
+      --muted: #8888a0;
+      --toggle-icon: "🌙";
+      --slider-track: #e4e4ee;
+      --card-glow: rgba(124,109,250,0.03);
+      --day-bg: #fffbeb;
+      --night-bg: #f1f1f9;
     }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } /* [cite: 4] */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: var(--bg); /* [cite: 4] */
-      color: var(--text); /* [cite: 4] */
-      font-family: 'Inter', sans-serif; /* [cite: 5] */
-      min-height: 100vh; /* [cite: 5] */
-      padding: 40px 24px 80px; /* [cite: 5] */
-      transition: background 0.3s, color 0.3s; /* [cite: 5] */
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 40px 24px 80px;
+      transition: background 0.3s, color 0.3s;
     }
 
     body::before {
-      content: ''; /* [cite: 5] */
-      position: fixed; /* [cite: 6] */
-      inset: 0; /* [cite: 6] */
+      content: '';
+      position: fixed;
+      inset: 0;
       background-image:
-        linear-gradient(rgba(124,109,250,0.025) 1px, transparent 1px), /* [cite: 6] */
-        linear-gradient(90deg, rgba(124,109,250,0.025) 1px, transparent 1px); /* [cite: 6] */
-      background-size: 40px 40px; /* [cite: 7] */
-      pointer-events: none; /* [cite: 7] */
-      z-index: 0; /* [cite: 7] */
-      transition: opacity 0.3s; /* [cite: 7] */
+        linear-gradient(rgba(124,109,250,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,109,250,0.025) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+      transition: opacity 0.3s;
     }
 
-    [data-theme="light"] body::before { opacity: 0.5; } /* [cite: 8] */
+    [data-theme="light"] body::before { opacity: 0.5; }
 
     .container {
-      position: relative; /* [cite: 8] */
-      z-index: 1; /* [cite: 8] */
-      max-width: 1140px; /* [cite: 8] */
-      margin: 0 auto; /* [cite: 8] */
+      position: relative;
+      z-index: 1;
+      max-width: 1140px;
+      margin: 0 auto;
     }
 
     /* ── HEADER ── */
     header {
-      display: flex; /* [cite: 9] */
-      justify-content: space-between; /* [cite: 9] */
-      align-items: flex-start; /* [cite: 9] */
-      gap: 24px; /* [cite: 9] */
-      margin-bottom: 40px; /* [cite: 10] */
-      flex-wrap: wrap; /* [cite: 10] */
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
     }
 
     .brand h1 {
-      font-family: 'Syne', sans-serif; /* [cite: 10] */
-      font-size: 28px; /* [cite: 10] */
-      font-weight: 800; /* [cite: 10] */
-      letter-spacing: -0.02em; /* [cite: 10] */
-      display: flex; /* [cite: 11] */
-      align-items: center; /* [cite: 11] */
-      gap: 10px; /* [cite: 11] */
-      color: var(--text); /* [cite: 11] */
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
     }
 
     .brand h1 .logo-icon {
-      font-size: 26px; /* [cite: 12] */
-      line-height: 1; /* [cite: 12] */
+      font-size: 26px;
+      line-height: 1;
     }
 
-    .brand h1 .brand-name { color: var(--text); } /* [cite: 12] */
-    .brand h1 .brand-dot { color: var(--accent); } /* [cite: 13] */
+    .brand h1 .brand-name { color: var(--text); }
+    .brand h1 .brand-dot { color: var(--accent); }
 
     .brand h1 span.pulse-dot {
-      display: inline-block; /* [cite: 13] */
-      width: 9px; /* [cite: 13] */
-      height: 9px; /* [cite: 14] */
-      background: var(--accent); /* [cite: 14] */
-      border-radius: 50%; /* [cite: 14] */
-      box-shadow: 0 0 10px var(--accent); /* [cite: 14] */
-      animation: pulse 2s infinite; /* [cite: 14] */
-      margin-left: 2px; /* [cite: 14] */
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+      animation: pulse 2s infinite;
+      margin-left: 2px;
     }
 
     @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); } /* [cite: 15] */
-      50% { opacity: 0.4; transform: scale(0.75); } /* [cite: 16] */
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.75); }
     }
 
     .brand-sub {
-      font-size: 13px; /* [cite: 17] */
-      color: var(--muted); /* [cite: 17] */
-      margin-top: 5px; /* [cite: 17] */
-      font-family: 'DM Mono', monospace; /* [cite: 17] */
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 5px;
+      font-family: 'DM Mono', monospace;
     }
 
-    /* Live badge */
     #timeSourceBadge {
-      display: inline-flex; /* [cite: 18] */
-      align-items: center; /* [cite: 18] */
-      gap: 6px; /* [cite: 18] */
-      font-family: 'DM Mono', monospace; /* [cite: 19] */
-      font-size: 11px; /* [cite: 19] */
-      padding: 4px 10px; /* [cite: 19] */
-      border-radius: 20px; /* [cite: 19] */
-      border: 1px solid var(--border); /* [cite: 19] */
-      color: var(--muted); /* [cite: 19] */
-      margin-top: 8px; /* [cite: 19] */
-      transition: all 0.3s; /* [cite: 20] */
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      margin-top: 8px;
+      transition: all 0.3s;
     }
 
     #timeSourceBadge.live {
-      border-color: rgba(124,109,250,0.4); /* [cite: 20] */
-      color: var(--accent); /* [cite: 20] */
-      background: rgba(124,109,250,0.07); /* [cite: 20] */
+      border-color: rgba(124,109,250,0.4);
+      color: var(--accent);
+      background: rgba(124,109,250,0.07);
     }
 
     #timeSourceBadge .indicator {
-      width: 6px; height: 6px; /* [cite: 21] */
-      border-radius: 50%; /* [cite: 21] */
-      background: var(--muted); /* [cite: 21] */
-      flex-shrink: 0; /* [cite: 21] */
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
     }
 
     #timeSourceBadge.live .indicator {
-      background: var(--green); /* [cite: 22] */
-      box-shadow: 0 0 6px var(--green); /* [cite: 22] */
-      animation: pulse 2s infinite; /* [cite: 22] */
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+      animation: pulse 2s infinite;
     }
 
-    /* ── HEADER RIGHT: search + toggle ── */
     .header-right {
-      display: flex; /* [cite: 23] */
-      flex-direction: column; /* [cite: 23] */
-      align-items: flex-end; /* [cite: 24] */
-      gap: 12px; /* [cite: 24] */
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
     }
 
-    /* ── THEME TOGGLE ── */
     .theme-toggle {
-      display: flex; /* [cite: 24] */
-      align-items: center; /* [cite: 25] */
-      gap: 8px; /* [cite: 25] */
-      cursor: pointer; /* [cite: 25] */
-      user-select: none; /* [cite: 25] */
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
     }
 
     .theme-toggle-label {
-      font-size: 12px; /* [cite: 26] */
-      font-family: 'DM Mono', monospace; /* [cite: 26] */
-      color: var(--muted); /* [cite: 26] */
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
     }
 
     .toggle-track {
-      width: 44px; /* [cite: 26] */
-      height: 24px; /* [cite: 27] */
-      border-radius: 12px; /* [cite: 27] */
-      background: var(--surface2); /* [cite: 27] */
-      border: 1px solid var(--border); /* [cite: 27] */
-      position: relative; /* [cite: 27] */
-      cursor: pointer; /* [cite: 27] */
-      transition: background 0.3s, border-color 0.3s; /* [cite: 27] */
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     .toggle-track.on {
-      background: rgba(124,109,250,0.2); /* [cite: 28] */
-      border-color: rgba(124,109,250,0.4); /* [cite: 28] */
+      background: rgba(124,109,250,0.2);
+      border-color: rgba(124,109,250,0.4);
     }
 
     .toggle-thumb {
-      position: absolute; /* [cite: 29] */
-      top: 3px; left: 3px; /* [cite: 29] */
-      width: 16px; height: 16px; /* [cite: 29] */
-      border-radius: 50%; /* [cite: 29] */
-      background: var(--muted); /* [cite: 29] */
-      transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s; /* [cite: 30] */
-      font-size: 10px; /* [cite: 30] */
-      display: flex; align-items: center; justify-content: center; /* [cite: 30] */
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s;
+      font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
     }
 
     .toggle-track.on .toggle-thumb {
-      transform: translateX(20px); /* [cite: 30] */
-      background: var(--accent); /* [cite: 31] */
+      transform: translateX(20px);
+      background: var(--accent);
     }
 
-    /* ── SEARCH ── */
     .search-wrap {
-      position: relative; /* [cite: 31] */
-      width: 100%; /* [cite: 31] */
-      max-width: 380px; /* [cite: 31] */
+      position: relative;
+      width: 100%;
+      max-width: 380px;
     }
 
     .search-wrap input {
-      width: 100%; /* [cite: 33] */
-      background: var(--surface); /* [cite: 33] */
-      border: 1px solid var(--border); /* [cite: 33] */
-      border-radius: 12px; /* [cite: 33] */
-      padding: 13px 16px 13px 44px; /* [cite: 34] */
-      font-size: 14px; /* [cite: 34] */
-      color: var(--text); /* [cite: 34] */
-      font-family: 'Inter', sans-serif; /* [cite: 34] */
-      outline: none; /* [cite: 34] */
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.3s; /* [cite: 34] */
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px 13px 44px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
     }
 
-    .search-wrap input::placeholder { color: var(--muted); } /* [cite: 35] */
+    .search-wrap input::placeholder { color: var(--muted); }
 
     .search-wrap input:focus {
-      border-color: var(--accent); /* [cite: 35] */
-      box-shadow: 0 0 0 3px rgba(124,109,250,0.12); /* [cite: 35] */
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,109,250,0.12);
     }
 
     .search-wrap svg {
-      position: absolute; /* [cite: 36] */
-      left: 14px; top: 50%; /* [cite: 36] */
-      transform: translateY(-50%); /* [cite: 36] */
-      color: var(--muted); /* [cite: 36] */
-      width: 16px; height: 16px; /* [cite: 36] */
-      pointer-events: none; /* [cite: 37] */
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      width: 16px; height: 16px;
+      pointer-events: none;
     }
 
     #suggestions {
-      position: absolute; /* [cite: 37] */
-      top: calc(100% + 6px); /* [cite: 37] */
-      left: 0; right: 0; /* [cite: 37] */
-      background: var(--surface2); /* [cite: 37] */
-      border: 1px solid var(--border); /* [cite: 38] */
-      border-radius: 12px; /* [cite: 38] */
-      overflow: hidden; /* [cite: 38] */
-      z-index: 100; /* [cite: 38] */
-      display: none; /* [cite: 38] */
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12); /* [cite: 38] */
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
     }
 
     #suggestions .suggestion-item {
-      padding: 10px 16px; /* [cite: 39] */
-      font-size: 14px; /* [cite: 39] */
-      cursor: pointer; /* [cite: 39] */
-      display: flex; /* [cite: 39] */
-      justify-content: space-between; /* [cite: 39] */
-      align-items: center; /* [cite: 39] */
-      transition: background 0.15s; /* [cite: 40] */
-      color: var(--text); /* [cite: 40] */
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.15s;
+      color: var(--text);
     }
 
     #suggestions .suggestion-item:hover { background: rgba(124,109,250,0.1); }
 
     #suggestions .suggestion-item .tz-hint {
-      font-size: 11px; /* [cite: 40] */
-      color: var(--muted); /* [cite: 41] */
-      font-family: 'DM Mono', monospace; /* [cite: 41] */
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
     }
 
     /* ── TIMELINE SCRUBBER ── */
     .timeline-card {
-      background: var(--surface); /* [cite: 41] */
-      border: 1px solid var(--border); /* [cite: 42] */
-      border-radius: 16px; /* [cite: 42] */
-      padding: 24px 28px; /* [cite: 42] */
-      margin-bottom: 32px; /* [cite: 42] */
-      transition: background 0.3s, border-color 0.3s; /* [cite: 42] */
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     .timeline-top {
-      display: flex; /* [cite: 43] */
-      justify-content: space-between; /* [cite: 43] */
-      align-items: center; /* [cite: 43] */
-      margin-bottom: 18px; /* [cite: 43] */
-      flex-wrap: wrap; /* [cite: 43] */
-      gap: 8px; /* [cite: 43] */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .timeline-label {
-      font-family: 'DM Mono', monospace; /* [cite: 44] */
-      font-size: 12px; /* [cite: 44] */
-      color: var(--muted); /* [cite: 44] */
-      text-transform: uppercase; /* [cite: 44] */
-      letter-spacing: 0.08em; /* [cite: 44] */
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     #sliderDisplay {
-      font-family: 'Syne', sans-serif; /* [cite: 45] */
-      font-size: 15px; /* [cite: 45] */
-      font-weight: 700; /* [cite: 45] */
-      color: var(--accent); /* [cite: 45] */
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
     }
 
     .tick-row {
-      display: flex; /* [cite: 46] */
-      justify-content: space-between; /* [cite: 46] */
-      margin-bottom: 8px; /* [cite: 46] */
-      padding: 0 2px; /* [cite: 46] */
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 0 2px;
     }
 
     .tick-row span {
-      font-size: 10px; /* [cite: 47] */
-      color: var(--muted); /* [cite: 47] */
-      font-family: 'DM Mono', monospace; /* [cite: 47] */
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
     }
 
     input[type="range"].time-slider {
-      -webkit-appearance: none; /* [cite: 48] */
-      width: 100%; /* [cite: 48] */
-      height: 6px; /* [cite: 48] */
-      border-radius: 3px; /* [cite: 48] */
-      background: var(--slider-track); /* [cite: 48] */
-      outline: none; /* [cite: 48] */
-      cursor: pointer; /* [cite: 48] */
-      transition: background 0.3s; /* [cite: 49] */
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--slider-track);
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
     }
 
     input[type="range"].time-slider::-webkit-slider-thumb {
-      -webkit-appearance: none; /* [cite: 49] */
-      width: 22px; height: 22px; /* [cite: 49] */
-      border-radius: 50%; /* [cite: 49] */
-      background: var(--accent); /* [cite: 49] */
-      border: 3px solid var(--bg); /* [cite: 49] */
-      box-shadow: 0 0 10px rgba(124,109,250,0.4); /* [cite: 50] */
-      cursor: pointer; /* [cite: 50] */
-      transition: transform 0.1s, border-color 0.3s; /* [cite: 50] */
-      margin-top: -8px; /* [cite: 50] */
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 10px rgba(124,109,250,0.4);
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.3s;
+      margin-top: -8px;
     }
 
-    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.15); } /* [cite: 51] */
+    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
 
     .reset-btn {
-      margin-top: 14px; /* [cite: 51] */
-      display: flex; /* [cite: 51] */
-      align-items: center; /* [cite: 51] */
-      justify-content: flex-end; /* [cite: 51] */
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
     }
 
     .reset-btn button {
-      background: none; /* [cite: 52] */
-      border: 1px solid var(--border); /* [cite: 52] */
-      color: var(--muted); /* [cite: 52] */
-      padding: 5px 14px; /* [cite: 52] */
-      border-radius: 8px; /* [cite: 52] */
-      font-size: 12px; /* [cite: 52] */
-      font-family: 'DM Mono', monospace; /* [cite: 53] */
-      cursor: pointer; /* [cite: 53] */
-      transition: all 0.2s; /* [cite: 53] */
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
     }
 
     .reset-btn button:hover {
-      border-color: var(--accent); /* [cite: 54] */
-      color: var(--accent); /* [cite: 54] */
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     /* ── CLOCK GRID ── */
     .clock-grid {
-      display: grid; /* [cite: 54] */
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); /* [cite: 55] */
-      gap: 20px; /* [cite: 55] */
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
     }
 
     .clock-card {
-      background: var(--surface); /* [cite: 55] */
-      border: 1px solid var(--border); /* [cite: 55] */
-      border-radius: 16px; /* [cite: 55] */
-      padding: 22px 24px; /* [cite: 56] */
-      display: flex; /* [cite: 56] */
-      flex-direction: column; /* [cite: 56] */
-      gap: 14px; /* [cite: 56] */
-      transition: border-color 0.2s, transform 0.2s, background 0.3s; /* [cite: 56] */
-      position: relative; /* [cite: 56] */
-      overflow: hidden; /* [cite: 56] */
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: border-color 0.3s, transform 0.2s, background-color 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .clock-card.is-home {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(124,109,250,0.15);
     }
 
     .clock-card::before {
-      content: ''; /* [cite: 58] */
-      position: absolute; /* [cite: 58] */
-      inset: 0; /* [cite: 58] */
-      background: radial-gradient(circle at 90% 10%, var(--card-glow), transparent 60%); /* [cite: 58] */
-      pointer-events: none; /* [cite: 58] */
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 90% 10%, var(--card-glow), transparent 60%);
+      pointer-events: none;
     }
 
     .clock-card:hover {
-      border-color: rgba(124,109,250,0.3); /* [cite: 59] */
-      transform: translateY(-3px); /* [cite: 59] */
+      transform: translateY(-3px);
     }
 
     .card-header {
-      display: flex; /* [cite: 59] */
-      justify-content: space-between; /* [cite: 59] */
-      align-items: flex-start; /* [cite: 59] */
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
     }
 
     .city-name {
-      font-family: 'Syne', sans-serif; /* [cite: 60] */
-      font-size: 17px; /* [cite: 60] */
-      font-weight: 700; /* [cite: 60] */
-      color: var(--text); /* [cite: 60] */
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
     }
 
     .tz-label {
-      font-size: 11px; /* [cite: 61] */
-      color: var(--muted); /* [cite: 61] */
-      font-family: 'DM Mono', monospace; /* [cite: 61] */
-      margin-top: 3px; /* [cite: 61] */
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      margin-top: 3px;
     }
 
     .badge {
-      font-size: 10px; /* [cite: 62] */
-      font-weight: 700; /* [cite: 62] */
-      padding: 3px 9px; /* [cite: 62] */
-      border-radius: 20px; /* [cite: 62] */
-      text-transform: uppercase; /* [cite: 62] */
-      letter-spacing: 0.07em; /* [cite: 62] */
-      flex-shrink: 0; /* [cite: 62] */
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      flex-shrink: 0;
     }
 
-    .badge-day { background: #fef3c7; color: #92610a; } /* [cite: 63] */
-    .badge-night { background: #1a1a2e; color: #a9a6d8; border: 1px solid #2e2e50; } /* [cite: 63] */
+    .badge-day { background: #fef3c7; color: #92610a; }
+    .badge-night { background: #1a1a2e; color: #a9a6d8; border: 1px solid #2e2e50; }
 
     [data-theme="light"] .badge-night {
-      background: #2a2a50; /* [cite: 64] */
-      color: #c0bdee; /* [cite: 64] */
+      background: #2a2a50;
+      color: #c0bdee;
     }
 
     .time-row {
-      display: flex; /* [cite: 65] */
-      align-items: baseline; /* [cite: 65] */
-      gap: 8px; /* [cite: 65] */
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
     }
 
-    .time-big {
-      font-family: 'Nunito', sans-serif; /* [cite: 65] */
-      font-size: 44px; /* [cite: 66] */
-      font-weight: 900; /* [cite: 66] */
-      letter-spacing: 0.01em; /* [cite: 66] */
-      color: var(--text); /* [cite: 66] */
-      font-variant-numeric: tabular-nums; /* [cite: 66] */
-      line-height: 1; /* [cite: 66] */
+    .time-input-container {
+      display: inline-flex;
+      align-items: baseline;
+      font-family: 'Nunito', sans-serif;
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .time-input-container input {
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      color: inherit;
+      width: 58px;
+      padding: 0;
+      text-align: center;
+      outline: none;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+    }
+
+    .time-input-container input:focus {
+      background-color: rgba(124,109,250,0.15);
+    }
+
+    .time-separator {
+      animation: blink 2s infinite;
+      user-select: none;
+      padding: 0 2px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
     }
 
     .time-seconds {
-      font-family: 'Nunito', sans-serif; /* [cite: 66] */
-      font-size: 20px; /* [cite: 67] */
-      font-weight: 700; /* [cite: 67] */
-      color: var(--muted); /* [cite: 67] */
-      font-variant-numeric: tabular-nums; /* [cite: 67] */
-      line-height: 1; /* [cite: 67] */
+      font-family: 'Nunito', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-left: 6px;
     }
 
     .time-ampm {
-      font-family: 'Nunito', sans-serif; /* [cite: 68] */
-      font-size: 14px; /* [cite: 68] */
-      font-weight: 800; /* [cite: 68] */
-      color: var(--accent); /* [cite: 68] */
-      letter-spacing: 0.06em; /* [cite: 68] */
-      text-transform: uppercase; /* [cite: 68] */
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      margin-left: 4px;
+    }
+
+    .time-ampm:hover {
+      background-color: rgba(124,109,250,0.15);
     }
 
     .card-footer {
-      display: flex; /* [cite: 69] */
-      justify-content: space-between; /* [cite: 69] */
-      align-items: center; /* [cite: 69] */
-      border-top: 1px solid var(--border); /* [cite: 69] */
-      padding-top: 12px; /* [cite: 69] */
-      font-size: 12px; /* [cite: 69] */
-      color: var(--muted); /* [cite: 70] */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
     }
 
     .day-pill {
-      background: var(--surface2); /* [cite: 70] */
-      padding: 2px 8px; /* [cite: 70] */
-      border-radius: 5px; /* [cite: 70] */
-      font-family: 'DM Mono', monospace; /* [cite: 70] */
-      font-size: 11px; /* [cite: 70] */
-      color: var(--muted); /* [cite: 71] */
+      background: var(--surface2);
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
     }
 
-    .day-pill.ahead { color: var(--accent2); border: 1px solid rgba(240,160,90,0.25); } /* [cite: 72] */
-    .day-pill.behind { color: var(--red); border: 1px solid rgba(240,90,90,0.2); } /* [cite: 72] */
+    .day-pill.ahead { color: var(--accent2); border: 1px solid rgba(240,160,90,0.25); }
+    .day-pill.behind { color: var(--red); border: 1px solid rgba(240,90,90,0.2); }
 
-    .remove-btn {
-      background: none; /* [cite: 73] */
-      border: none; /* [cite: 73] */
-      color: var(--red); /* [cite: 73] */
-      font-size: 11px; /* [cite: 73] */
-      font-family: 'Inter', sans-serif; /* [cite: 73] */
-      cursor: pointer; /* [cite: 73] */
-      opacity: 0; /* [cite: 73] */
-      transition: opacity 0.2s; /* [cite: 74] */
-      padding: 2px 6px; /* [cite: 74] */
-    }
-
-    .clock-card:hover .remove-btn { opacity: 1; } /* [cite: 74] */
-
-    /* Toast */
-    #toast {
-      position: fixed; /* [cite: 75] */
-      bottom: 28px; /* [cite: 75] */
-      left: 50%; /* [cite: 75] */
-      transform: translateX(-50%) translateY(20px); /* [cite: 75] */
-      background: var(--surface2); /* [cite: 76] */
-      border: 1px solid var(--red); /* [cite: 76] */
-      color: var(--red); /* [cite: 76] */
-      padding: 10px 20px; /* [cite: 76] */
-      border-radius: 10px; /* [cite: 76] */
-      font-size: 13px; /* [cite: 76] */
-      font-family: 'DM Mono', monospace; /* [cite: 76] */
-      opacity: 0; /* [cite: 76] */
-      transition: opacity 0.3s, transform 0.3s; /* [cite: 77] */
-      pointer-events: none; /* [cite: 77] */
-      z-index: 999; /* [cite: 77] */
-      white-space: nowrap; /* [cite: 77] */
-    }
-
-    #toast.show {
-      opacity: 1; /* [cite: 78] */
-      transform: translateX(-50%) translateY(0); /* [cite: 78] */
-    }
-
-    @media (max-width: 640px) {
-      body { padding: 24px 16px 60px; } /* [cite: 79] */
-      header { flex-direction: column; } /* [cite: 80] */
-      .header-right { align-items: flex-start; width: 100%; } /* [cite: 80] */
-      .search-wrap { max-width: 100%; } /* [cite: 81] */
-    }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <header>
-    <div class="brand">
-      <h1>
-        <span class="logo-icon">🌐</span>
-        <span class="brand-name">Zone<span class="brand-dot">Sync</span></span>
-        <span class="pulse-dot"></span>
-      </h1>
-      <p class="brand-sub">// live world clock &amp; timezone converter</p>
-      <div id="timeSourceBadge">
-        <span class="indicator"></span>
-        <span id="badgeText">fetching online time…</span>
-      </div>
-    </div>
-
-    <div class="header-right">
-      <div class="theme-toggle" onclick="toggleTheme()" title="Switch theme">
-        <span class="theme-toggle-label" id="themeLabel">Dark mode</span>
-        <div class="toggle-track on" id="toggleTrack">
-          <div class="toggle-thumb" id="toggleThumb">🌙</div>
-        </div>
-      </div>
-
-      <div class="search-wrap">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        <input type="text" id="citySearch" placeholder="Search any city in the world..."
-          autocomplete="off" oninput="debounceSearch(this.value)" onkeydown="handleSearchKey(event)" />
-        <div id="suggestions"></div>
-      </div>
-    </div>
-  </header>
-
-  <div class="timeline-card">
-    <div class="timeline-top">
-      <span class="timeline-label">⏱ Time Scrubber — drag to explore</span>
-      <span id="sliderDisplay">—</span>
-    </div>
-    <div class="tick-row">
-      <span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11:59 PM</span>
-    </div>
-    <input type="range" id="masterSlider" class="time-slider" min="0" max="1439" value="0"
-      oninput="onSliderChange()" />
-    <div class="reset-btn">
-      <button onclick="resetToNow()">↺ Reset to current time</button>
-    </div>
-  </div>
-
-  <div class="clock-grid" id="clockGrid"></div>
-</div>
-
-<div id="toast"></div>
-
-<script>
-// ── THEME TRIGGER CONTROL ──────────────────────
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  const track = document.getElementById('toggleTrack');
-  const thumb = document.getElementById('toggleThumb');
-  const label = document.getElementById('themeLabel');
-  if (isDark) {
-    track.classList.remove('on');
-    thumb.textContent = '☀️';
-    label.textContent = 'Light mode';
-    localStorage.setItem('zonesync-theme', 'light');
-  } else {
-    track.classList.add('on');
-    thumb.textContent = '🌙';
-    label.textContent = 'Dark mode';
-    localStorage.setItem('zonesync-theme', 'dark');
-  }
-}
-
-// ── STATE MANAGEMENT ──────────────────────────
-let trackedCities = [
-  { name: "Bengaluru, IN", zone: "Kolkata", iana: "Asia/Kolkata" },
-  { name: "London, GB",    zone: "London",  iana: "Europe/London" },
-  { name: "New York, US",  zone: "New York",iana: "America/New_York" },
-  { name: "Los Angeles, US",zone: "Los Angeles", iana: "America/Los_Angeles" },
-  { name: "Tokyo, JP",     zone: "Tokyo",   iana: "Asia/Tokyo" }
-];
-
-let baseUTCms = null;
-let baseLocalMs = null;
-let usingOnlineTime = false;
-let scrubOffsetMinutes = 0;
-let isScrubbing = false;
-let activeSuggestionIndex = -1; // [Bug Fix 3] Track visual index mapping [cite: 90]
-let currentSuggestions = [];    // Real-time suggestions cache
-let debounceTimer;              // Input stream rate limiter 
-
-// ── ONLINE TIME FETCH ──────────────────────────
-async function fetchOnlineTime() {
-  const badge = document.getElementById('timeSourceBadge');
-  const badgeText = document.getElementById('badgeText');
-
-  const apis = [
-    { url: 'https://worldtimeapi.org/api/timezone/UTC', parse: d => new Date(d.utc_datetime).getTime() },
-    { url: 'https://timeapi.io/api/Time/current/zone?timeZone=UTC', parse: d => new Date(d.dateTime + 'Z').getTime() },
-  ];
-
-  for (const api of apis) {
-    try {
-      const t0 = performance.now();
-      const res = await fetch(api.url);
-      const json = await res.json();
-      const t1 = performance.now();
-      const rtt = (t1 - t0) / 2;
-      baseUTCms = api.parse(json) + rtt;
-      baseLocalMs = performance.now();
-      usingOnlineTime = true;
-      badge.classList.add('live');
-      badgeText.textContent = 'online time · worldtimeapi.org';
-      return;
-    } catch (e) {}
-  }
-
-  baseUTCms = Date.now();
-  baseLocalMs = performance.now();
-  usingOnlineTime = false;
-  badge.classList.remove('live');
-  badgeText.textContent = 'fallback: local machine time';
-}
-
-function getCurrentUTCms() {
-  if (baseUTCms === null) return Date.now();
-  return baseUTCms + (performance.now() - baseLocalMs);
-}
-
-function getCityMinutes(city, utcMs) {
-  const date = new Date(utcMs + scrubOffsetMinutes * 60_000);
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: city.iana,
-    hour: 'numeric', minute: 'numeric', second: 'numeric',
-    hour12: false, day: 'numeric'
-  }).formatToParts(date);
-  const get = type => parseInt(parts.find(p => p.type === type)?.value || '0');
-  let h = get('hour'); const m = get('minute'); const s = get('second');
-  if (h === 24) h = 0;
-  return { hours: h, minutes: m, seconds: s };
-}
-
-// [Bug Fix 1] Locale-Agnostic Structural Offset Check [cite: 84]
-function getDayOffset(city, utcMs) {
-  const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
-  
-  const getDayNum = (tz) => {
-    const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, day: 'numeric' }).formatToParts(new Date(effectiveMs));
-    return parseInt(parts.find(p => p.type === 'day')?.value || '0', 10);
-  };
-
-  const targetDay = getDayNum(city.iana);
-  const utcDay = getDayNum('UTC');
-  
-  let diff = targetDay - utcDay;
-  if (diff > 1) diff = -1;
-  if (diff < -1) diff = 1;
-  
-  return diff;
-}
-
-function fmt2(n) { return String(n).padStart(2, '0'); }
-
-function getUTCOffsetStr(ianaZone) {
-  try {
-    const p = new Intl.DateTimeFormat('en', { timeZone: ianaZone, timeZoneName: 'shortOffset' }).formatToParts(new Date());
-    return (p.find(x => x.type === 'timeZoneName')?.value || '').replace('GMT', 'UTC');
-  } catch { return ''; }
-}
-
-// ── RENDER ENGINE ──────────────────────────────
-function renderClocks() {
-  if (baseUTCms === null) return;
-  const utcMs = getCurrentUTCms();
-  const grid = document.getElementById('clockGrid');
-  const sliderDisplay = document.getElementById('sliderDisplay');
-
-  const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
-  const disp = new Intl.DateTimeFormat('en-US', {
-    timeZone: 'UTC', hour: '2-digit', minute: '2-digit', hour12: true
-  }).format(new Date(effectiveMs));
-
-  sliderDisplay.textContent = isScrubbing
-    ? `Scrubbing: UTC ${disp} (${scrubOffsetMinutes >= 0 ? '+' : ''}${scrubOffsetMinutes}m)`
-    : `Live — UTC ${disp}`;
-
-  grid.innerHTML = '';
-  trackedCities.forEach((city, i) => {
-    const { hours, minutes, seconds } = getCityMinutes(city, utcMs);
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const h12 = (hours % 12) || 12;
-    const timeMain = `${h12}:${fmt2(minutes)}`;
-    const isDay = hours >= 6 && hours < 18;
-    const dayOff = getDayOffset(city, utcMs);
-    const utcStr = getUTCOffsetStr(city.iana);
-
-    let dayPillHtml = `<span class="day-pill">Same day</span>`;
-    if (dayOff > 0) dayPillHtml = `<span class="day-pill ahead">+${dayOff} day</span>`;
-    if (dayOff < 0) dayPillHtml = `<span class="day-pill behind">${dayOff} day</span>`;
-
-    grid.innerHTML += `
-      <div class="clock-card">
-        <div class="card-header">
-          <div>
-            <div class="city-name">${city.name}</div>
-            <div class="tz-label">${city.zone} · ${utcStr}</div>
-          </div>
-          <span class="badge ${isDay ? 'badge-day' : 'badge-night'}">${isDay ? 'Day' : 'Night'}</span>
-        </div>
-        <div class="time-row">
-          <span class="time-big">${timeMain}</span>
-          <span class="time-seconds">${fmt2(seconds)}</span>
-          <span class="time-ampm">${ampm}</span>
-        </div>
-        <div class="card-footer">
-          ${dayPillHtml}
-          <button class="remove-btn" onclick="removeCity(${i})">✕ Remove</button>
-        </div>
-      </div>`;
-  });
-}
-
-// ── SLIDER ──
-function syncSliderToNow() {
-  if (baseUTCms === null) return;
-  const d = new Date(getCurrentUTCms());
-  document.getElementById('masterSlider').value = d.getUTCHours() * 60 + d.getUTCMinutes();
-}
-
-function onSliderChange() {
-  if (baseUTCms === null) return;
-  isScrubbing = true;
-  const sliderVal = parseInt(document.getElementById('masterSlider').value);
-  const d = new Date(getCurrentUTCms());
-  const nowUTC = d.getUTCHours() * 60 + d.getUTCMinutes();
-  scrubOffsetMinutes = sliderVal - nowUTC;
-  renderClocks();
-}
-
-function resetToNow() {
-  isScrubbing = false;
-  scrubOffsetMinutes = 0;
-  syncSliderToNow();
-  renderClocks();
-}
-
-// ── METHOD 1: REAL-TIME API GEOCODING & SEARCH SEARCH SELECTION  ──
-function debounceSearch(val) {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => fetchGlobalCities(val), 300); // 300ms network throttle 
-}
-
-async function fetchGlobalCities(query) {
-  const box = document.getElementById('suggestions');
-  const q = query.trim().toLowerCase();
-  
-  if (q.length < 2) { box.style.display = 'none'; activeSuggestionIndex = -1; return; }
-
-  try {
-    // Open-Meteo standard non-auth endpoint lookup 
-    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
-    const data = await res.json();
-
-    if (!data.results || data.results.length === 0) {
-      box.style.display = 'none';
-      activeSuggestionIndex = -1;
-      return;
-    }
-
-    // Map properties explicitly matching targeted dynamic IANA layouts
-    currentSuggestions = data.results
-      .filter(item => item.timezone)
-      .map(item => ({
-        name: `${item.name}, ${item.country_code.toUpperCase()}`,
-        zone: item.timezone.split('/').pop().replace(/_/g, ' '),
-        iana: item.timezone
-      }));
-
-    if (!currentSuggestions.length) { box.style.display = 'none'; return; }
-
-    box.innerHTML = currentSuggestions.map((c, idx) =>
-      `<div class="suggestion-item" id="sug-${idx}" onclick="addDynamicCity(${idx})">
-        <span>${c.name}</span>
-        <span class="tz-hint">${c.zone}</span>
-      </div>`
-    ).join('');
-    box.style.display = 'block';
-    activeSuggestionIndex = -1;
-
-  } catch (error) {
-    console.error("Geocoding service error:", error);
-  }
-}
-
-function addDynamicCity(index) {
-  const city = currentSuggestions[index];
-  if (city && !trackedCities.some(c => c.iana === city.iana && c.name === city.name)) {
-    trackedCities.push(city);
-    renderClocks();
-  }
-  document.getElementById('citySearch').value = '';
-  document.getElementById('suggestions').style.display = 'none';
-  activeSuggestionIndex = -1;
-}
-
-// [Bug Fix 3] Accessibility navigation controller wrapper [cite: 90, 91]
-function handleSearchKey(e) {
-  const box = document.getElementById('suggestions');
-  const items = box.querySelectorAll('.suggestion-item');
-  
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    if (activeSuggestionIndex < items.length - 1) {
-      activeSuggestionIndex++;
-      updateActiveSuggestionVisuals(items);
-    }
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    if (activeSuggestionIndex > 0) {
-      activeSuggestionIndex--;
-      updateActiveSuggestionVisuals(items);
-    }
-  } else if (e.key === 'Enter') {
-    if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
-      items[activeSuggestionIndex].click();
-    } else if (currentSuggestions.length > 0) {
-      addDynamicCity(0);
-    } else {
-      showToast(`No locations found matching search term.`);
-    }
-  } else if (e.key === 'Escape') {
-    box.style.display = 'none';
-    activeSuggestionIndex = -1;
-  }
-}
-
-function updateActiveSuggestionVisuals(items) {
-  items.forEach((item, idx) => {
-    if (idx === activeSuggestionIndex) {
-      item.style.backgroundColor = 'rgba(124, 109, 250, 0.15)';
-    } else {
-      item.style.backgroundColor = '';
-    }
-  });
-}
-
-function removeCity(i) {
-  trackedCities.splice(i, 1);
-  renderClocks();
-}
-
-// ── TOAST MECHANISM ──
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display = 'none';
-});
-
-// ── [Bug Fix 2] ASYNC DOM SEED LAYER & THEME INITIALIZATION [cite: 87] ──
-(async () => {
-  const savedTheme = localStorage.getItem('zonesync-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  
-  const track = document.getElementById('toggleTrack');
-  const thumb = document.getElementById('toggleThumb');
-  const label = document.getElementById('themeLabel');
-  
-  if (savedTheme === 'light') {
-    track.classList.remove('on');
-    thumb.textContent = '☀️';
-    label.textContent = 'Light mode';
-  } else {
-    track.classList.add('on');
-    thumb.textContent = '🌙';
-    label.textContent = 'Dark mode';
-  }
-
-  await fetchOnlineTime();
-  syncSliderToNow();
-  renderClocks();
-  setInterval(() => {
-    if (!isScrubbing) syncSliderToNow();
-    renderClocks();
-  }, 1000);
-  setInterval(fetchOnlineTime, 10 * 60 * 1000);
-})();
-</script>
-</body>
-</html>
+    .action-icons {
+      display: flex;
+      align-items:
