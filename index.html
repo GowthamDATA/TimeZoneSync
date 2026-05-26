@@ -3,40 +3,44 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ZoneSync — Live World Clock & Timezone Converter</title>
+  <title>ZoneSync — Premium Live World Clock & Timezone Engine</title>
   <meta name="description" content="ZoneSync: Free live world clock showing current time in every timezone. Compare cities, convert time zones, and plan across the globe in real time." />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700;800&family=Nunito:wght@400;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
-    /* ── THEME TOKENS ── */
+    /* ── PREMIUM SYSTEM DESIGN TOKENS ── */
     :root {
       --accent: #7c6dfa;
+      --accent-rgb: 124, 109, 250;
       --accent2: #f0a05a;
       --red: #f05a5a;
       --green: #4ade80;
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     [data-theme="dark"] {
-      --bg: #0a0a0f;
-      --surface: #111118;
-      --surface2: #18181f;
-      --border: #2a2a36;
+      --bg: #06060a;
+      --surface: rgba(17, 17, 24, 0.7);
+      --surface-hover: rgba(24, 24, 35, 0.85);
+      --surface2: #12121a;
+      --border: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(124, 109, 250, 0.3);
       --text: #f0eff8;
-      --muted: #6b6a7e;
-      --toggle-icon: "☀️";
-      --slider-track: #18181f;
-      --card-glow: rgba(124,109,250,0.05);
+      --muted: #807f93;
+      --slider-track: #14141f;
+      --glass-glow: rgba(124, 109, 250, 0.03);
     }
 
     [data-theme="light"] {
       --bg: #f4f4f8;
-      --surface: #ffffff;
-      --surface2: #f0f0f5;
-      --border: #dddde8;
+      --surface: rgba(255, 255, 255, 0.75);
+      --surface-hover: rgba(255, 255, 255, 0.9);
+      --surface2: #eaeaea;
+      --border: rgba(0, 0, 0, 0.06);
+      --border-hover: rgba(124, 109, 250, 0.4);
       --text: #0f0f1a;
-      --muted: #8888a0;
-      --toggle-icon: "🌙";
-      --slider-track: #e4e4ee;
-      --card-glow: rgba(124,109,250,0.03);
+      --muted: #6e6e82;
+      --slider-track: #e2e2ec;
+      --glass-glow: rgba(124, 109, 250, 0.01);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -47,127 +51,113 @@
       font-family: 'Inter', sans-serif;
       min-height: 100vh;
       padding: 40px 24px 80px;
-      transition: background 0.3s, color 0.3s;
+      transition: background 0.4s ease, color 0.4s ease;
+      overflow-x: hidden;
     }
 
+    /* Soft Dynamic Mesh Background Grid */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
       background-image:
-        linear-gradient(rgba(124,109,250,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124,109,250,0.025) 1px, transparent 1px);
-      background-size: 40px 40px;
+        linear-gradient(rgba(124, 109, 250, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 109, 250, 0.015) 1px, transparent 1px);
+      background-size: 50px 50px;
       pointer-events: none;
       z-index: 0;
-      transition: opacity 0.3s;
     }
-
-    [data-theme="light"] body::before { opacity: 0.5; }
 
     .container {
       position: relative;
       z-index: 1;
-      max-width: 1140px;
+      max-width: 1200px;
       margin: 0 auto;
     }
 
-    /* ── HEADER ── */
+    /* ── HEADER NAVIGATION LAYOUT ── */
     header {
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       gap: 24px;
-      margin-bottom: 40px;
+      margin-bottom: 48px;
       flex-wrap: wrap;
     }
 
     .brand h1 {
       font-family: 'Syne', sans-serif;
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 800;
-      letter-spacing: -0.02em;
+      letter-spacing: -0.03em;
       display: flex;
       align-items: center;
-      gap: 10px;
-      color: var(--text);
+      gap: 12px;
     }
 
-    .brand h1 .logo-icon {
-      font-size: 26px;
-      line-height: 1;
-    }
+    .brand h1 .logo-icon { animation: rotateGlobe 20s linear infinite; }
+    @keyframes rotateGlobe { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-    .brand h1 .brand-name { color: var(--text); }
     .brand h1 .brand-dot { color: var(--accent); }
-
-    .brand h1 span.pulse-dot {
-      display: inline-block;
-      width: 9px;
-      height: 9px;
-      background: var(--accent);
-      border-radius: 50%;
-      box-shadow: 0 0 10px var(--accent);
-      animation: pulse 2s infinite;
-      margin-left: 2px;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.75); }
-    }
 
     .brand-sub {
       font-size: 13px;
       color: var(--muted);
-      margin-top: 5px;
+      margin-top: 6px;
       font-family: 'DM Mono', monospace;
+      letter-spacing: -0.01em;
     }
 
     #timeSourceBadge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       font-family: 'DM Mono', monospace;
       font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 20px;
+      padding: 6px 14px;
+      border-radius: 30px;
+      background: rgba(var(--accent-rgb), 0.04);
       border: 1px solid var(--border);
       color: var(--muted);
-      margin-top: 8px;
-      transition: all 0.3s;
+      margin-top: 12px;
+      transition: var(--transition-smooth);
     }
 
     #timeSourceBadge.live {
-      border-color: rgba(124,109,250,0.4);
+      border-color: rgba(var(--accent-rgb), 0.25);
       color: var(--accent);
-      background: rgba(124,109,250,0.07);
+      background: rgba(var(--accent-rgb), 0.08);
     }
 
     #timeSourceBadge .indicator {
       width: 6px; height: 6px;
       border-radius: 50%;
       background: var(--muted);
-      flex-shrink: 0;
     }
 
     #timeSourceBadge.live .indicator {
       background: var(--green);
-      box-shadow: 0 0 6px var(--green);
-      animation: pulse 2s infinite;
+      box-shadow: 0 0 8px var(--green);
+      animation: pulseGlow 2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
     }
 
     .header-right {
       display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 12px;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
     }
 
+    /* ── SWITCH CONTROLLER ── */
     .theme-toggle {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       cursor: pointer;
       user-select: none;
     }
@@ -176,452 +166,428 @@
       font-size: 12px;
       font-family: 'DM Mono', monospace;
       color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
     .toggle-track {
-      width: 44px;
-      height: 24px;
-      border-radius: 12px;
+      width: 48px; height: 26px;
+      border-radius: 30px;
       background: var(--surface2);
       border: 1px solid var(--border);
       position: relative;
-      cursor: pointer;
-      transition: background 0.3s, border-color 0.3s;
+      transition: var(--transition-smooth);
     }
 
     .toggle-track.on {
-      background: rgba(124,109,250,0.2);
-      border-color: rgba(124,109,250,0.4);
+      background: rgba(var(--accent-rgb), 0.15);
+      border-color: rgba(var(--accent-rgb), 0.3);
     }
 
     .toggle-thumb {
       position: absolute;
       top: 3px; left: 3px;
-      width: 16px; height: 16px;
+      width: 18px; height: 18px;
       border-radius: 50%;
       background: var(--muted);
-      transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s;
-      font-size: 10px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s;
+      font-size: 11px;
       display: flex; align-items: center; justify-content: center;
     }
 
     .toggle-track.on .toggle-thumb {
-      transform: translateX(20px);
+      transform: translateX(22px);
       background: var(--accent);
     }
 
+    /* ── SEARCH HOVER BLOCK ── */
     .search-wrap {
       position: relative;
-      width: 100%;
-      max-width: 380px;
+      width: 320px;
     }
 
     .search-wrap input {
       width: 100%;
       background: var(--surface);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 13px 16px 13px 44px;
+      border-radius: 14px;
+      padding: 14px 16px 14px 48px;
       font-size: 14px;
       color: var(--text);
       font-family: 'Inter', sans-serif;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+      transition: var(--transition-smooth);
     }
-
-    .search-wrap input::placeholder { color: var(--muted); }
 
     .search-wrap input:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(124,109,250,0.12);
+      box-shadow: 0 0 0 4px rgba(124, 109, 250, 0.12);
+      background: var(--surface-hover);
     }
 
     .search-wrap svg {
       position: absolute;
-      left: 14px; top: 50%;
+      left: 16px; top: 50%;
       transform: translateY(-50%);
       color: var(--muted);
-      width: 16px; height: 16px;
+      width: 18px; height: 18px;
       pointer-events: none;
+      transition: var(--transition-smooth);
     }
+
+    .search-wrap input:focus + svg { color: var(--accent); }
 
     #suggestions {
       position: absolute;
-      top: calc(100% + 6px);
+      top: calc(100% + 8px);
       left: 0; right: 0;
       background: var(--surface2);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 14px;
       overflow: hidden;
       z-index: 100;
       display: none;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
     }
 
     #suggestions .suggestion-item {
-      padding: 10px 16px;
+      padding: 12px 18px;
       font-size: 14px;
       cursor: pointer;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: background 0.15s;
-      color: var(--text);
+      transition: background 0.2s ease;
     }
 
-    #suggestions .suggestion-item:hover { background: rgba(124,109,250,0.1); }
+    #suggestions .suggestion-item:hover { background: rgba(124, 109, 250, 0.08); }
+    #suggestions .suggestion-item .tz-hint { font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
 
-    #suggestions .suggestion-item .tz-hint {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-    }
-
-    /* ── TIMELINE SCRUBBER ── */
+    /* ── TIME SYSTEM SCRUBBER CARD ── */
     .timeline-card {
       background: var(--surface);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px 28px;
-      margin-bottom: 32px;
-      transition: background 0.3s, border-color 0.3s;
+      border-radius: 24px;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.02);
     }
 
     .timeline-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 12px;
     }
 
     .timeline-label {
       font-family: 'DM Mono', monospace;
-      font-size: 12px;
+      font-size: 11px;
       color: var(--muted);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
+      font-weight: 500;
     }
 
     #sliderDisplay {
       font-family: 'Syne', sans-serif;
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 700;
       color: var(--accent);
+      background: rgba(124, 109, 250, 0.06);
+      padding: 4px 12px;
+      border-radius: 8px;
     }
 
     .tick-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 8px;
-      padding: 0 2px;
+      margin-bottom: 12px;
+      padding: 0 4px;
     }
 
     .tick-row span {
-      font-size: 10px;
+      font-size: 11px;
       color: var(--muted);
       font-family: 'DM Mono', monospace;
     }
 
     input[type="range"].time-slider {
       -webkit-appearance: none;
-      width: 100%;
-      height: 6px;
-      border-radius: 3px;
+      width: 100%; height: 6px;
+      border-radius: 4px;
       background: var(--slider-track);
       outline: none;
       cursor: pointer;
-      transition: background 0.3s;
     }
 
     input[type="range"].time-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 22px; height: 22px;
+      width: 24px; height: 24px;
       border-radius: 50%;
       background: var(--accent);
-      border: 3px solid var(--bg);
-      box-shadow: 0 0 10px rgba(124,109,250,0.4);
+      border: 4px solid var(--bg);
+      box-shadow: 0 0 12px rgba(124, 109, 250, 0.4);
       cursor: pointer;
-      transition: transform 0.1s, border-color 0.3s;
-      margin-top: -8px;
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      margin-top: -9px;
     }
 
-    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
-    .reset-btn {
-      margin-top: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-
+    .reset-btn { margin-top: 16px; display: flex; justify-content: flex-end; }
     .reset-btn button {
-      background: none;
+      background: transparent;
       border: 1px solid var(--border);
       color: var(--muted);
-      padding: 5px 14px;
-      border-radius: 8px;
+      padding: 6px 16px;
+      border-radius: 10px;
       font-size: 12px;
       font-family: 'DM Mono', monospace;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: var(--transition-smooth);
     }
 
-    .reset-btn button:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .reset-btn button:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,109,250,0.02); }
 
-    /* ── CLOCK GRID ── */
+    /* ── GLASSMORPHIC CLOCK DASHBOARD GRID ── */
     .clock-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
     }
 
     .clock-card {
-      border: 2px solid var(--border);
-      border-radius: 16px;
-      padding: 22px 24px;
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 28px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
-      transition: border-color 0.3s, transform 0.2s, background 0.4s ease;
+      gap: 20px;
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
       position: relative;
-      overflow: hidden;
-    }
-
-    .clock-card.is-home {
-      border-color: var(--accent);
-      box-shadow: 0 0 12px rgba(124,109,250,0.15);
-    }
-
-    .clock-card::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 90% 10%, rgba(255,255,255,0.04), transparent 60%);
-      pointer-events: none;
     }
 
     .clock-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-4px);
+      border-color: var(--border-hover);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
     }
+
+    .clock-card.is-home {
+      border-color: rgba(124, 109, 250, 0.4);
+      box-shadow: 0 8px 24px rgba(124, 109, 250, 0.06);
+    }
+
+    /* Ambient Dynamic Backdrop Orbs */
+    .clock-card::after {
+      content: '';
+      position: absolute;
+      width: 140px; height: 140px;
+      top: -40px; right: -40px;
+      border-radius: 50%;
+      z-index: -1;
+      filter: blur(40px);
+      opacity: 0.15;
+      transition: background 0.5s ease;
+    }
+
+    /* Core Dynamic Light Condition Variations */
+    .clock-card.ambient-morning::after   { background: #f0a05a; }
+    .clock-card.ambient-afternoon::after { background: #38bdf8; }
+    .clock-card.ambient-evening::after   { background: #f97316; }
+    .clock-card.ambient-night::after     { background: #a855f7; }
 
     .card-header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      z-index: 2;
     }
 
-    .city-title-area {
+    .city-identity {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .city-icon {
-      font-size: 20px;
+    .status-orb {
+      font-size: 22px;
       line-height: 1;
     }
 
     .city-name {
       font-family: 'Syne', sans-serif;
-      font-size: 17px;
+      font-size: 19px;
       font-weight: 700;
+      letter-spacing: -0.01em;
     }
 
-    /* ── DYNAMIC CARD CONTRAST THEME INHERITANCE SYSTEM ── */
-    .clock-card.card-light-txt { color: #f0eff8 !important; }
-    .clock-card.card-dark-txt { color: #0f0f1a !important; }
-
-    .clock-card.card-light-txt .tz-label { color: rgba(240, 239, 248, 0.7); }
-    .clock-card.card-dark-txt .tz-label { color: rgba(15, 15, 26, 0.7); }
-
-    .clock-card.card-light-txt .time-seconds { color: rgba(240, 239, 248, 0.5); }
-    .clock-card.card-dark-txt .time-seconds { color: rgba(15, 15, 26, 0.5); }
-
-    .clock-card.card-light-txt .time-input-container input { color: #f0eff8; }
-    .clock-card.card-dark-txt .time-input-container input { color: #0f0f1a; }
-
-    .clock-card.card-light-txt .home-btn,
-    .clock-card.card-light-txt .remove-btn { color: #f0eff8; }
-    .clock-card.card-dark-txt .home-btn,
-    .clock-card.card-dark-txt .remove-btn { color: #0f0f1a; }
-
-    .tz-label {
+    .tz-info {
       font-size: 11px;
+      color: var(--muted);
       font-family: 'DM Mono', monospace;
-      margin-top: 3px;
+      margin-top: 2px;
     }
 
-    .badge {
-      font-size: 10px;
-      font-weight: 700;
+    .date-badge {
+      font-size: 11px;
+      font-weight: 600;
       padding: 4px 10px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      flex-shrink: 0;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      font-family: 'DM Mono', monospace;
+      background: var(--surface2);
+      border: 1px solid var(--border);
     }
 
-    .badge-day { background: #fef3c7; color: #92610a; }
-    .badge-night { background: #1a1a2e; color: #a9a6d8; border: 1px solid #2e2e50; }
-
-    .time-row {
+    .time-display-row {
       display: flex;
       align-items: baseline;
       gap: 4px;
-      z-index: 2;
     }
 
-    .time-input-container {
+    .input-time-engine {
       display: inline-flex;
-      align-items: baseline;
+      align-items: center;
       font-family: 'Nunito', sans-serif;
-      font-size: 44px;
+      font-size: 48px;
       font-weight: 900;
+      letter-spacing: -0.02em;
     }
 
-    .time-input-container input {
+    .input-time-engine input {
       background: transparent;
       border: none;
       font-family: inherit;
       font-size: inherit;
       font-weight: inherit;
-      width: 58px;
+      color: var(--text);
+      width: 62px;
       padding: 0;
       text-align: center;
       outline: none;
-      border-radius: 6px;
-      transition: background-color 0.2s;
+      border-radius: 8px;
+      transition: background 0.2s;
     }
 
-    .clock-card.card-light-txt .time-input-container input:focus { background-color: rgba(255,255,255,0.15); }
-    .clock-card.card-dark-txt .time-input-container input:focus { background-color: rgba(0,0,0,0.07); }
+    .input-time-engine input:focus {
+      background: rgba(124, 109, 250, 0.08);
+    }
 
-    .time-separator {
-      animation: blink 2s infinite;
+    .divider-dots {
+      animation: flashDot 2s infinite;
       user-select: none;
-      padding: 0 2px;
+      opacity: 0.8;
     }
 
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
+    @keyframes flashDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
 
-    .time-seconds {
+    .seconds-counter {
       font-family: 'Nunito', sans-serif;
       font-size: 20px;
       font-weight: 700;
+      color: var(--muted);
       font-variant-numeric: tabular-nums;
-      line-height: 1;
       margin-left: 6px;
     }
 
-    .time-ampm {
+    .ampm-trigger {
       font-family: 'Nunito', sans-serif;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 800;
-      letter-spacing: 0.06em;
+      color: var(--accent);
       text-transform: uppercase;
       cursor: pointer;
       user-select: none;
-      padding: 2px 4px;
-      border-radius: 4px;
-      transition: background-color 0.2s, color 0.2s;
-      margin-left: 4px;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: var(--transition-smooth);
+      margin-left: 6px;
     }
 
-    .clock-card.card-light-txt .time-ampm { color: #a399ff; }
-    .clock-card.card-dark-txt .time-ampm { color: #4338ca; }
-
-    .time-ampm:hover {
-      background-color: rgba(124,109,250,0.15);
-    }
+    .ampm-trigger:hover { background: rgba(124, 109, 250, 0.12); }
 
     .card-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
       font-size: 12px;
-      z-index: 2;
     }
-
-    .clock-card.card-dark-txt .card-footer { border-top-color: rgba(0,0,0,0.08); }
 
     .day-pill {
-      background: rgba(255, 255, 255, 0.08);
-      padding: 2px 8px;
-      border-radius: 5px;
+      padding: 3px 10px;
+      border-radius: 6px;
       font-family: 'DM Mono', monospace;
       font-size: 11px;
+      background: var(--surface2);
+      color: var(--muted);
     }
 
-    .clock-card.card-dark-txt .day-pill { background: rgba(0, 0, 0, 0.05); }
+    .day-pill.ahead { color: var(--accent2); background: rgba(240,160,90,0.06); border: 1px solid rgba(240,160,90,0.15); }
+    .day-pill.behind { color: var(--red); background: rgba(240,90,90,0.06); border: 1px solid rgba(240,90,90,0.15); }
 
-    .day-pill.ahead { color: var(--accent2); background: rgba(240,160,90,0.1); }
-    .day-pill.behind { color: var(--red); background: rgba(240,90,90,0.1); }
-
-    .action-icons {
+    .footer-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 4px;
     }
 
     .home-btn, .remove-btn {
-      background: none;
+      background: transparent;
       border: none;
       font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
       opacity: 0;
-      transition: opacity 0.2s, color 0.2s;
-      padding: 2px 6px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: var(--transition-smooth);
     }
 
-    .home-btn { opacity: 0.4; }
-    .clock-card.is-home .home-btn { color: var(--accent2) !important; opacity: 1; font-weight: bold; }
-    .remove-btn { color: var(--red) !important; opacity: 0; }
+    .home-btn { color: var(--muted); }
+    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; font-weight: 600; }
+    .remove-btn { color: var(--red); }
 
     .clock-card:hover .home-btn,
-    .clock-card:hover .remove-btn { opacity: 1; }
+    .clock-card:hover .remove-btn { opacity: 0.7; }
+    .home-btn:hover, .remove-btn:hover { opacity: 1 !important; background: var(--surface2); }
 
-    /* Toast */
+    /* Toast Overlay Layout */
     #toast {
       position: fixed;
-      bottom: 28px;
-      left: 50%;
+      bottom: 32px; left: 50%;
       transform: translateX(-50%) translateY(20px);
       background: var(--surface2);
       border: 1px solid var(--red);
       color: var(--red);
-      padding: 10px 20px;
-      border-radius: 10px;
+      padding: 12px 24px;
+      border-radius: 12px;
       font-size: 13px;
       font-family: 'DM Mono', monospace;
       opacity: 0;
-      transition: opacity 0.3s, transform 0.3s;
+      transition: var(--transition-smooth);
       pointer-events: none;
       z-index: 999;
-      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
     }
 
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       body { padding: 24px 16px 60px; }
-      header { flex-direction: column; }
-      .header-right { align-items: flex-start; width: 100%; }
-      .search-wrap { max-width: 100%; }
+      header { flex-direction: column; align-items: flex-start; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .search-wrap { width: 100%; max-width: none; }
     }
   </style>
 </head>
@@ -633,17 +599,16 @@
       <h1>
         <span class="logo-icon">🌐</span>
         <span class="brand-name">Zone<span class="brand-dot">Sync</span></span>
-        <span class="pulse-dot"></span>
       </h1>
-      <p class="brand-sub">// live world clock &amp; timezone converter</p>
+      <p class="brand-sub">// premium fluid world clock &amp; time matrix</p>
       <div id="timeSourceBadge">
         <span class="indicator"></span>
-        <span id="badgeText">fetching online time…</span>
+        <span id="badgeText">synchronizing cosmic atomic clocks…</span>
       </div>
     </div>
 
     <div class="header-right">
-      <div class="theme-toggle" onclick="toggleTheme()" title="Switch theme">
+      <div class="theme-toggle" onclick="toggleTheme()" title="Switch visual style profiles">
         <span class="theme-toggle-label" id="themeLabel">Dark mode</span>
         <div class="toggle-track on" id="toggleTrack">
           <div class="toggle-thumb" id="toggleThumb">🌙</div>
@@ -651,10 +616,10 @@
       </div>
 
       <div class="search-wrap">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input type="text" id="citySearch" placeholder="Search any city, state, or country..."
+        <input type="text" id="citySearch" placeholder="Type city, region, or terminal node..."
           autocomplete="off" oninput="debounceSearch(this.value)" onkeydown="handleSearchKey(event)" />
         <div id="suggestions"></div>
       </div>
@@ -663,7 +628,7 @@
 
   <div class="timeline-card">
     <div class="timeline-top">
-      <span class="timeline-label" id="scrubberLabel">⏱ Time Scrubber — drag to explore</span>
+      <span class="timeline-label" id="scrubberLabel">⏱ Temporal Slider Engine</span>
       <span id="sliderDisplay">—</span>
     </div>
     <div class="tick-row">
@@ -672,7 +637,7 @@
     <input type="range" id="masterSlider" class="time-slider" min="0" max="1439" value="0"
       oninput="onSliderChange()" />
     <div class="reset-btn">
-      <button onclick="resetToNow()">↺ Reset to current time</button>
+      <button onclick="resetToNow()">↺ Reset to live baseline</button>
     </div>
   </div>
 
@@ -682,7 +647,7 @@
 <div id="toast"></div>
 
 <script>
-// ── THEME TRIGGER CONTROL ──────────────────────
+// ── THEME INTERACTIVE MANAGEMENT ────────────────
 function toggleTheme() {
   const html = document.documentElement;
   const isDark = html.getAttribute('data-theme') === 'dark';
@@ -701,16 +666,15 @@ function toggleTheme() {
     label.textContent = 'Dark mode';
     localStorage.setItem('zonesync-theme', 'dark');
   }
-  renderClocks();
 }
 
-// ── STATE MANAGEMENT ──────────────────────────
+// ── MASTER TERMINAL DATA STATE ──────────────────
 let trackedCities = [
-  { name: "Bengaluru, Karnataka, IN", zone: "Kolkata",     iana: "Asia/Kolkata" },
-  { name: "London, England, GB",      zone: "London",      iana: "Europe/London" },
-  { name: "New York, NY, US",         zone: "New York",    iana: "America/New_York" },
-  { name: "Los Angeles, CA, US",      zone: "Los Angeles", iana: "America/Los_Angeles" },
-  { name: "Tokyo, Tokyo, JP",         zone: "Tokyo",       iana: "Asia/Tokyo" }
+  { name: "Bengaluru, India", zone: "IST",  iana: "Asia/Kolkata" },
+  { name: "London, United Kingdom", zone: "GMT",  iana: "Europe/London" },
+  { name: "New York, USA",  zone: "EST",  iana: "America/New_York" },
+  { name: "Los Angeles, USA", zone: "PST", iana: "America/Los_Angeles" },
+  { name: "Tokyo, Japan",  zone: "JST",  iana: "Asia/Tokyo" }
 ];
 
 let homeCityIana = "Asia/Kolkata"; 
@@ -723,7 +687,7 @@ let activeSuggestionIndex = -1;
 let currentSuggestions = [];    
 let debounceTimer;              
 
-// ── ONLINE TIME FETCH ──────────────────────────
+// ── CLOCK SYNCHRONIZATION PORTS ────────────────
 async function fetchOnlineTime() {
   const badge = document.getElementById('timeSourceBadge');
   const badgeText = document.getElementById('badgeText');
@@ -744,7 +708,7 @@ async function fetchOnlineTime() {
       baseLocalMs = performance.now();
       usingOnlineTime = true;
       badge.classList.add('live');
-      badgeText.textContent = 'online time · worldtimeapi.org';
+      badgeText.textContent = 'Atomic Network Baseline Layer Connected';
       return;
     } catch (e) {}
   }
@@ -753,7 +717,7 @@ async function fetchOnlineTime() {
   baseLocalMs = performance.now();
   usingOnlineTime = false;
   badge.classList.remove('live');
-  badgeText.textContent = 'fallback: local machine time';
+  badgeText.textContent = 'Temporal Backup: Local Client Clock';
 }
 
 function getCurrentUTCms() {
@@ -792,7 +756,7 @@ function getDayOffset(city, utcMs) {
   return diff;
 }
 
-function getFormattedDate(iana, utcMs) {
+function getFormattedCalendarDate(iana, utcMs) {
   const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
   return new Intl.DateTimeFormat('en-US', {
     timeZone: iana,
@@ -811,44 +775,15 @@ function getUTCOffsetStr(ianaZone) {
   } catch { return ''; }
 }
 
-// ── [FIXED LOGIC] TIME OF DAY META CONFIGURATOR WITH TEXT CONTRAST SYSTEM ──
-function getTimeOfDayMeta(hours) {
-  if (hours >= 6 && hours < 12) {
-    // MORNING
-    return {
-      icon: "🌅",
-      badgeClass: "badge-day",
-      textModeClass: "card-dark-txt", // Dark text on light golden dawn background
-      style: "linear-gradient(135deg, #fef3c7 0%, #fbcfe8 100%)" 
-    };
-  } else if (hours >= 12 && hours < 17) {
-    // AFTERNOON
-    return {
-      icon: "☀️",
-      badgeClass: "badge-day",
-      textModeClass: "card-dark-txt", // Dark text on bright sky background
-      style: "linear-gradient(135deg, #bae6fd 0%, #e0f2fe 100%)" 
-    };
-  } else if (hours >= 17 && hours < 20) {
-    // EVENING
-    return {
-      icon: "🌇",
-      badgeClass: "badge-night",
-      textModeClass: "card-light-txt", // Light text on rich sunset gradient
-      style: "linear-gradient(135deg, #f97316 0%, #4c1d95 100%)" 
-    };
-  } else {
-    // NIGHT
-    return {
-      icon: "🌙",
-      badgeClass: "badge-night",
-      textModeClass: "card-light-txt", // Light text on deep midnight background
-      style: "linear-gradient(135deg, #03001e 0%, #7303c0 50%, #ec38bc 100%)" 
-    };
-  }
+// ── DYNAMIC COLOR CONDITION INTERPOLATOR ────────
+function getAtmosphericClass(hours) {
+  if (hours >= 5 && hours < 12)  return { name: "ambient-morning", icon: "🌅" };
+  if (hours >= 12 && hours < 17) return { name: "ambient-afternoon", icon: "☀️" };
+  if (hours >= 17 && hours < 21) return { name: "ambient-evening", icon: "🌇" };
+  return { name: "ambient-night", icon: "🌙" };
 }
 
-// ── RENDER ENGINE ──────────────────────────────
+// ── GRID RENDERING GRAPHICS CONTROLLER ──────────
 function renderClocks() {
   if (baseUTCms === null) return;
   const utcMs = getCurrentUTCms();
@@ -861,11 +796,11 @@ function renderClocks() {
     const homeParts = getCityMinutes(homeTarget, utcMs);
     const homeAmPm = homeParts.hours >= 12 ? 'PM' : 'AM';
     const homeH12 = (homeParts.hours % 12) || 12;
-    labelText.textContent = `⏱ Home Time Base — (${homeTarget.name.split(',')[0]})`;
+    labelText.textContent = `⏱ Home Time Core Matrix — [${homeTarget.name.split(',')[0]}]`;
     
     sliderDisplay.textContent = isScrubbing
-      ? `Scrubbing Target: ${homeH12}:${fmt2(homeParts.minutes)} ${homeAmPm}`
-      : `Live — ${homeH12}:${fmt2(homeParts.minutes)} ${homeAmPm}`;
+      ? `Simulated Pivot: ${homeH12}:${fmt2(homeParts.minutes)} ${homeAmPm}`
+      : `Live Tracking — ${homeH12}:${fmt2(homeParts.minutes)} ${homeAmPm}`;
   }
 
   const activeId = document.activeElement ? document.activeElement.id : null;
@@ -878,43 +813,45 @@ function renderClocks() {
     const h12 = (hours % 12) || 12;
     const dayOff = getDayOffset(city, utcMs);
     const utcStr = getUTCOffsetStr(city.iana);
-    const dateLabel = getFormattedDate(city.iana, utcMs);
+    const dateLabel = getFormattedCalendarDate(city.iana, utcMs);
     const isHome = city.iana === homeCityIana;
 
-    const timeMeta = getTimeOfDayMeta(hours);
+    const weatherMeta = getAtmosphericClass(hours);
 
-    let dayPillHtml = `<span class="day-pill">Same day</span>`;
-    if (dayOff > 0) dayPillHtml = `<span class="day-pill ahead">+${dayOff} day</span>`;
-    if (dayOff < 0) dayPillHtml = `<span class="day-pill behind">${dayOff} day</span>`;
+    let dayPillHtml = `<span class="day-pill">Same cycle</span>`;
+    if (dayOff > 0) dayPillHtml = `<span class="day-pill ahead">+${dayOff} Phase</span>`;
+    if (dayOff < 0) dayPillHtml = `<span class="day-pill behind">${dayOff} Phase</span>`;
 
     grid.innerHTML += `
-      <div class="clock-card ${isHome ? 'is-home' : ''} ${timeMeta.textModeClass}" style="background: ${timeMeta.style}">
+      <div class="clock-card ${isHome ? 'is-home' : ''} ${weatherMeta.name}">
         <div class="card-header">
-          <div class="city-title-area">
-            <span class="city-icon" title="Local conditions summary">${timeMeta.icon}</span>
+          <div class="city-identity">
+            <span class="status-orb" title="Local atmospheric frame state">${weatherMeta.icon}</span>
             <div>
               <div class="city-name" title="${city.name}">${city.name.split(',')[0]}</div>
-              <div class="tz-label">${city.zone} · ${utcStr}</div>
+              <div class="tz-info">${city.zone} · ${utcStr}</div>
             </div>
           </div>
-          <span class="badge ${timeMeta.badgeClass}">${dateLabel}</span>
+          <span class="date-badge">${dateLabel}</span>
         </div>
-        <div class="time-row">
+        <div class="time-display-row">
           <div class="time-input-container">
-            <input type="text" maxlength="2" id="h-${i}" value="${fmt2(h12)}" 
-              onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'h')" onblur="commitTimeInput(${i})">
-            <span class="time-separator">:</span>
-            <input type="text" maxlength="2" id="m-${i}" value="${fmt2(minutes)}" 
-              onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'm')" onblur="commitTimeInput(${i})">
+            <div class="input-time-engine">
+              <input type="text" maxlength="2" id="h-${i}" value="${fmt2(h12)}" 
+                onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'h')" onblur="commitTimeInput(${i})">
+              <span class="time-separator divider-dots">:</span>
+              <input type="text" maxlength="2" id="m-${i}" value="${fmt2(minutes)}" 
+                onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'm')" onblur="commitTimeInput(${i})">
+            </div>
           </div>
-          <span class="time-seconds">${fmt2(seconds)}</span>
-          <span class="time-ampm" onclick="toggleAmPm(${i})">${ampm}</span>
+          <span class="seconds-counter">${fmt2(seconds)}</span>
+          <span class="ampm-trigger" onclick="toggleAmPm(${i})">${ampm}</span>
         </div>
         <div class="card-footer">
           ${dayPillHtml}
           <div class="action-icons">
-            <button class="home-btn" title="Set as Home Reference Base" onclick="setHomeBase(${i})">⚓ Home</button>
-            <button class="remove-btn" onclick="removeCity(${i})">✕ Remove</button>
+            <button class="home-btn" title="Lock down as relative space home anchor" onclick="setHomeBase(${i})">⚓ Anchor</button>
+            <button class="remove-btn" title="Drop entity node" onclick="removeCity(${i})">✕ Wipe</button>
           </div>
         </div>
       </div>`;
@@ -929,12 +866,9 @@ function renderClocks() {
   }
 }
 
-// ── TIME INTERACTION MECHANICS ────────────────
+// ── DIRECT VALUE INTERACTION FIELD MATRIX ──────
 function handleTimeInput(e, cityIndex, type) {
-  if (e.key === 'Enter') {
-    e.target.blur();
-    return;
-  }
+  if (e.key === 'Enter') { e.target.blur(); return; }
   if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab') {
     if(!e.metaKey && !e.ctrlKey) e.preventDefault();
   }
@@ -961,7 +895,6 @@ function commitTimeInput(cityIndex) {
   const targetCityMinutes = targetHours * 60 + mVal;
   
   scrubOffsetMinutes += (targetCityMinutes - currentCityMinutes);
-  
   updateSliderElement();
   renderClocks();
 }
@@ -969,11 +902,7 @@ function commitTimeInput(cityIndex) {
 function toggleAmPm(cityIndex) {
   isScrubbing = true;
   const { hours } = getCityMinutes(trackedCities[cityIndex], getCurrentUTCms());
-  if (hours >= 12) {
-    scrubOffsetMinutes -= 720; 
-  } else {
-    scrubOffsetMinutes += 720; 
-  }
+  scrubOffsetMinutes += (hours >= 12) ? -720 : 720;
   updateSliderElement();
   renderClocks();
 }
@@ -983,13 +912,13 @@ function setHomeBase(index) {
   renderClocks();
 }
 
-// ── SLIDER INTERFACE CONTROLS ──
 function updateSliderElement() {
   if (baseUTCms === null) return;
   const d = new Date(getCurrentUTCms() + scrubOffsetMinutes * 60_000);
   document.getElementById('masterSlider').value = d.getUTCHours() * 60 + d.getUTCMinutes();
 }
 
+// ── TIMELINE CONTROLLER INPUT ROUTINES ──────────
 function syncSliderToNow() {
   if (baseUTCms === null) return;
   const d = new Date(getCurrentUTCms());
@@ -1013,7 +942,7 @@ function resetToNow() {
   renderClocks();
 }
 
-// ── DYNAMIC GEOCODING SEARCH SERVICE ──
+// ── DYNAMIC SYSTEM GEO SEARCH LOGIC ENGINE ──────
 function debounceSearch(val) {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => fetchGlobalCities(val), 300);
@@ -1058,7 +987,7 @@ async function fetchGlobalCities(query) {
     activeSuggestionIndex = -1;
 
   } catch (error) {
-    console.error("Geocoding lookup error:", error);
+    console.error("Spatial coordinate matrix system dropped out:", error);
   }
 }
 
@@ -1094,11 +1023,7 @@ function handleSearchKey(e) {
 
 function updateActiveSuggestionVisuals(items) {
   items.forEach((item, idx) => {
-    if (idx === activeSuggestionIndex) {
-      item.style.backgroundColor = 'rgba(124, 109, 250, 0.15)';
-    } else {
-      item.style.backgroundColor = '';
-    }
+    item.style.backgroundColor = (idx === activeSuggestionIndex) ? 'rgba(124, 109, 250, 0.15)' : '';
   });
 }
 
@@ -1121,7 +1046,7 @@ function removeCity(i) {
   renderClocks();
 }
 
-// ── NOTIFICATIONS LAYER ──
+// ── NOTIFICATION MANAGER ──────────────────────
 let toastTimer;
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -1135,7 +1060,7 @@ document.addEventListener('click', e => {
   if (!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display = 'none';
 });
 
-// ── INITIALIZATION ENVIRONMENT SEED ──
+// ── CORE ENVIRONMENT START SEED ────────────────
 (async () => {
   const savedTheme = localStorage.getItem('zonesync-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
