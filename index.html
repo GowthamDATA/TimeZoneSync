@@ -305,7 +305,7 @@
       gap: 16px;
     }
 
-    /* ── REPOSITIONED CONVENIENT THEME SWITCH CONTROL ── */
+    /* ── THEME SWITCH CONTROL ── */
     .theme-toggle {
       display: flex;
       align-items: center;
@@ -816,6 +816,29 @@ function getUTCOffsetStr(ianaZone) {
   } catch { return ''; }
 }
 
+// ── GET MINUTES OVERRIDE BETWEEN UTC & TARGET TIMEZONE ──
+function getTimezoneOffsetMinutes(iana, baseMs) {
+  const d = new Date(baseMs);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: iana,
+    hour: 'numeric', minute: 'numeric', hour12: false
+  }).formatToParts(d);
+  const hZone = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+  const mZone = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+
+  const hUtc = d.getUTCHours();
+  const mUtc = d.getUTCMinutes();
+
+  let localTotal = hZone * 60 + mZone;
+  let utcTotal = hUtc * 60 + mUtc;
+
+  // Account for date line rollovers across standard bounds
+  let diff = localTotal - utcTotal;
+  if (diff > 720) diff -= 1440;
+  if (diff < -720) diff += 1440;
+  return diff;
+}
+
 // ── COLOR GRADIENT DATA CONFIGURATORS ───────────
 function getAtmosphericClass(hours) {
   if (hours >= 5 && hours < 12)  return { name: "ambient-morning", icon: "🌅" };
@@ -940,7 +963,6 @@ function commitTimeInput(cityIndex) {
   renderClocks();
 }
 
-// Fix scope validation toggle mapping parameters securely
 function toggleAmPm(cityIndex) {
   isScrubbing = true;
   const { hours } = getCityMinutes(trackedCities[cityIndex], getCurrentUTCms());
@@ -951,33 +973,53 @@ function toggleAmPm(cityIndex) {
 
 function setHomeBase(index) {
   homeCityIana = trackedCities[index].iana;
+  updateSliderElement();
   renderClocks();
 }
 
 // ── SYNCHRONIZED TIMELINE UPDATER FLOWS ─────────
 function updateSliderElement() {
   if (baseUTCms === null) return;
-  const d = new Date(getCurrentUTCms() + scrubOffsetMinutes * 60_000);
-  document.getElementById('masterSlider').value = d.getUTCHours() * 60 + d.getUTCMinutes();
+  const utcMs = getCurrentUTCms();
+  const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
+  
+  // Dynamic offset calculation relative to Home Base local minutes instead of absolute UTC loop parameters
+  const targetDate = new Date(utcMs + scrubOffsetMinutes * 60_000);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: homeTarget.iana,
+    hour: 'numeric', minute: 'numeric', hour12: false
+  }).formatToParts(targetDate);
+  
+  const hours = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+  const minutes = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+  
+  document.getElementById('masterSlider').value = (hours % 24) * 60 + minutes;
 }
 
 function syncSliderToNow() {
   if (baseUTCms === null) return;
-  const d = new Date(getCurrentUTCms());
-  document.getElementById('masterSlider').value = d.getUTCHours() * 60 + d.getUTCMinutes();
+  updateSliderElement();
 }
 
 function onSliderChange() {
   if (baseUTCms === null) return;
   isScrubbing = true;
-  const sliderVal = parseInt(document.getElementById('masterSlider').value);
-  const d = new Date(getCurrentUTCms());
-  const nowUTC = d.getUTCHours() * 60 + d.getUTCMinutes();
-  scrubOffsetMinutes = sliderVal - nowUTC;
+  
+  const sliderVal = parseInt(document.getElementById('masterSlider').value, 10);
+  const utcMs = getCurrentUTCms();
+  const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
+
+  // Resolve absolute baseline shifts relative to home time parameters
+  const offsetFromUTC = getTimezoneOffsetMinutes(homeTarget.iana, utcMs);
+  const currentDate = new Date(utcMs);
+  const currentUTCMinutes = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
+  
+  let targetUTCMinutes = sliderVal - offsetFromUTC;
+  scrubOffsetMinutes = targetUTCMinutes - currentUTCMinutes;
+  
   renderClocks();
 }
 
-// Fix baseline clear execution loop tracking resets
 function resetToNow() {
   isScrubbing = false;
   scrubOffsetMinutes = 0;
@@ -1086,6 +1128,7 @@ function removeCity(i) {
     homeCityIana = trackedCities[i === 0 ? 1 : 0].iana;
   }
   trackedCities.splice(i, 1);
+  updateSliderElement();
   renderClocks();
 }
 
