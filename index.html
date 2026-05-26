@@ -80,9 +80,9 @@
     header {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-end;
       gap: 24px;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
       flex-wrap: wrap;
     }
 
@@ -100,56 +100,68 @@
     @keyframes rotateGlobe { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .brand h1 .brand-dot { color: var(--accent); }
 
-    .brand-sub {
-      font-size: 13px;
-      color: var(--muted);
-      margin-top: 6px;
-      font-family: 'DM Mono', monospace;
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
     }
 
-    #timeSourceBadge {
+    /* ── POSITIONED ABOVE THE SEARCH BOX SYSTEM CONTROL ── */
+    .theme-toggle {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      padding: 6px 14px;
-      border-radius: 30px;
-      background: rgba(var(--accent-rgb), 0.04);
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--surface);
       border: 1px solid var(--border);
-      color: var(--muted);
-      margin-top: 12px;
+      padding: 6px 14px;
+      border-radius: 10px;
       transition: var(--transition-smooth);
     }
 
-    #timeSourceBadge.live {
-      border-color: rgba(var(--accent-rgb), 0.25);
-      color: var(--accent);
-      background: rgba(var(--accent-rgb), 0.08);
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      background: rgba(124, 109, 250, 0.02);
     }
 
-    #timeSourceBadge .indicator {
-      width: 6px; height: 6px;
+    .theme-toggle-label {
+      font-size: 11px;
+      font-family: 'DM Mono', monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .toggle-track {
+      width: 44px; height: 22px;
+      border-radius: 30px;
+      background: var(--slider-track);
+      border: 1px solid var(--border);
+      position: relative;
+      transition: var(--transition-smooth);
+    }
+
+    .toggle-track.on {
+      background: rgba(var(--accent-rgb), 0.15);
+      border-color: rgba(var(--accent-rgb), 0.3);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
       border-radius: 50%;
       background: var(--muted);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s;
+      font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
     }
 
-    #timeSourceBadge.live .indicator {
-      background: var(--green);
-      box-shadow: 0 0 8px var(--green);
-      animation: pulseGlow 2s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      flex-wrap: wrap;
+    .toggle-track.on .toggle-thumb {
+      transform: translateX(22px);
+      background: var(--accent);
     }
 
     /* ── DYNAMIC SEARCH WRAPPER ── */
@@ -299,67 +311,8 @@
     .timeline-bottom-controls {
       margin-top: 20px;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    /* ── THEME SWITCH CONTROL ── */
-    .theme-toggle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      user-select: none;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      padding: 6px 14px;
-      border-radius: 10px;
-      transition: var(--transition-smooth);
-    }
-
-    .theme-toggle:hover {
-      border-color: var(--accent);
-      background: rgba(124, 109, 250, 0.02);
-    }
-
-    .theme-toggle-label {
-      font-size: 12px;
-      font-family: 'DM Mono', monospace;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .toggle-track {
-      width: 44px; height: 22px;
-      border-radius: 30px;
-      background: var(--slider-track);
-      border: 1px solid var(--border);
-      position: relative;
-      transition: var(--transition-smooth);
-    }
-
-    .toggle-track.on {
-      background: rgba(var(--accent-rgb), 0.15);
-      border-color: rgba(var(--accent-rgb), 0.3);
-    }
-
-    .toggle-thumb {
-      position: absolute;
-      top: 2px; left: 2px;
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--muted);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s;
-      font-size: 10px;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .toggle-track.on .toggle-thumb {
-      transform: translateX(22px);
-      background: var(--accent);
     }
 
     .reset-btn button {
@@ -622,11 +575,11 @@
 
     @media (max-width: 768px) {
       body { padding: 24px 16px 60px; }
-      header { flex-direction: column; align-items: flex-start; }
-      .header-right { width: 100%; justify-content: space-between; }
-      .search-wrap { width: 100%; max-width: none; }
+      header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .header-right { width: 100%; justify-content: space-between; align-items: flex-start; }
+      .theme-toggle { order: 1; width: 100%; justify-content: space-between; }
+      .search-wrap { order: 2; width: 100%; max-width: none; }
       .timeline-bottom-controls { flex-direction: column; align-items: stretch; }
-      .theme-toggle { justify-content: space-between; }
     }
   </style>
 </head>
@@ -639,14 +592,16 @@
         <span class="logo-icon">🌐</span>
         <span class="brand-name">Zone<span class="brand-dot">Sync</span></span>
       </h1>
-      <p class="brand-sub">// premium fluid world clock &amp; time matrix</p>
-      <div id="timeSourceBadge">
-        <span class="indicator"></span>
-        <span id="badgeText">synchronizing atomic telemetry layers…</span>
-      </div>
     </div>
 
     <div class="header-right">
+      <div class="theme-toggle" onclick="toggleTheme()" title="Switch canvas lighting profiles">
+        <span class="theme-toggle-label" id="themeLabel">Dark mode</span>
+        <div class="toggle-track on" id="toggleTrack">
+          <div class="toggle-thumb" id="toggleThumb">🌙</div>
+        </div>
+      </div>
+
       <div class="search-wrap">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -670,12 +625,6 @@
       oninput="onSliderChange()" />
     
     <div class="timeline-bottom-controls">
-      <div class="theme-toggle" onclick="toggleTheme()" title="Switch canvas lighting profiles">
-        <span class="theme-toggle-label" id="themeLabel">Dark mode</span>
-        <div class="toggle-track on" id="toggleTrack">
-          <div class="toggle-thumb" id="toggleThumb">🌙</div>
-        </div>
-      </div>
       <div class="reset-btn">
         <button onclick="resetToNow()">↺ Reset to live baseline</button>
       </div>
@@ -730,9 +679,6 @@ let debounceTimer;
 
 // ── SYNC PORT ROUTINES ──────────────────────────
 async function fetchOnlineTime() {
-  const badge = document.getElementById('timeSourceBadge');
-  const badgeText = document.getElementById('badgeText');
-
   const apis = [
     { url: 'https://worldtimeapi.org/api/timezone/UTC', parse: d => new Date(d.utc_datetime).getTime() },
     { url: 'https://timeapi.io/api/Time/current/zone?timeZone=UTC', parse: d => new Date(d.dateTime + 'Z').getTime() },
@@ -748,8 +694,6 @@ async function fetchOnlineTime() {
       baseUTCms = api.parse(json) + rtt;
       baseLocalMs = performance.now();
       usingOnlineTime = true;
-      badge.classList.add('live');
-      badgeText.textContent = 'Atomic Network Baseline Layer Connected';
       return;
     } catch (e) {}
   }
@@ -757,8 +701,6 @@ async function fetchOnlineTime() {
   baseUTCms = Date.now();
   baseLocalMs = performance.now();
   usingOnlineTime = false;
-  badge.classList.remove('live');
-  badgeText.textContent = 'Temporal Backup: Local Client Clock';
 }
 
 function getCurrentUTCms() {
@@ -816,7 +758,6 @@ function getUTCOffsetStr(ianaZone) {
   } catch { return ''; }
 }
 
-// ── GET MINUTES OVERRIDE BETWEEN UTC & TARGET TIMEZONE ──
 function getTimezoneOffsetMinutes(iana, baseMs) {
   const d = new Date(baseMs);
   const parts = new Intl.DateTimeFormat('en-US', {
@@ -832,7 +773,6 @@ function getTimezoneOffsetMinutes(iana, baseMs) {
   let localTotal = hZone * 60 + mZone;
   let utcTotal = hUtc * 60 + mUtc;
 
-  // Account for date line rollovers across standard bounds
   let diff = localTotal - utcTotal;
   if (diff > 720) diff -= 1440;
   if (diff < -720) diff += 1440;
@@ -983,7 +923,6 @@ function updateSliderElement() {
   const utcMs = getCurrentUTCms();
   const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
   
-  // Dynamic offset calculation relative to Home Base local minutes instead of absolute UTC loop parameters
   const targetDate = new Date(utcMs + scrubOffsetMinutes * 60_000);
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: homeTarget.iana,
@@ -1009,7 +948,6 @@ function onSliderChange() {
   const utcMs = getCurrentUTCms();
   const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
 
-  // Resolve absolute baseline shifts relative to home time parameters
   const offsetFromUTC = getTimezoneOffsetMinutes(homeTarget.iana, utcMs);
   const currentDate = new Date(utcMs);
   const currentUTCMinutes = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
@@ -1172,7 +1110,6 @@ document.addEventListener('click', e => {
     if (!isScrubbing) syncSliderToNow();
     renderClocks();
   }, 1000);
-  setInterval(fetchOnlineTime, 10 * 60 * 1000);
 })();
 </script>
 </body>
