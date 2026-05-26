@@ -18,37 +18,37 @@
       --accent2: #f0a05a;
       --red: #f05a5a;
       --green: #4ade80;
-      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     [data-theme="dark"] {
-      --bg: #0d0d14;
-      --surface: rgba(22, 22, 34, 0.65);
-      --surface-hover: rgba(30, 30, 46, 0.85);
-      --surface2: #161622;
-      --border: rgba(255, 255, 255, 0.12);
-      --border-strong: rgba(255, 255, 255, 0.25);
+      --bg: #09090e;
+      --surface: rgba(18, 18, 29, 0.6);
+      --surface-hover: rgba(26, 26, 41, 0.75);
+      --surface2: rgba(30, 30, 46, 0.5);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.18);
       --border-hover: rgba(124, 109, 250, 0.5);
       --text: #f0eff8;
-      --muted: #a4a3bc;
-      --slider-track: #222235;
-      --glass-glow: rgba(124, 109, 250, 0.05);
-      --input-bg: rgba(255, 255, 255, 0.05);
+      --muted: #8e8da4;
+      --slider-track: #171725;
+      --input-bg: rgba(255, 255, 255, 0.04);
+      --bg-dots: rgba(255, 255, 255, 0.015);
     }
 
     [data-theme="light"] {
-      --bg: #f4f4f8;
-      --surface: rgba(255, 255, 255, 0.75);
-      --surface-hover: rgba(255, 255, 255, 0.9);
-      --surface2: #eaeaea;
-      --border: rgba(0, 0, 0, 0.08);
-      --border-strong: rgba(0, 0, 0, 0.15);
+      --bg: #f3f3f8;
+      --surface: rgba(255, 255, 255, 0.7);
+      --surface-hover: rgba(255, 255, 255, 0.85);
+      --surface2: rgba(230, 230, 240, 0.5);
+      --border: rgba(0, 0, 0, 0.06);
+      --border-strong: rgba(0, 0, 0, 0.14);
       --border-hover: rgba(124, 109, 250, 0.4);
       --text: #0f0f1a;
       --muted: #6e6e82;
-      --slider-track: #dcdce6;
-      --glass-glow: rgba(124, 109, 250, 0.01);
-      --input-bg: rgba(0, 0, 0, 0.04);
+      --slider-track: #e2e2ec;
+      --input-bg: rgba(0, 0, 0, 0.03);
+      --bg-dots: rgba(0, 0, 0, 0.015);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -59,25 +59,35 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       min-height: 100vh;
       padding: 40px 24px 80px;
-      transition: background 0.4s ease, color 0.4s ease;
+      transition: background 0.5s ease, color 0.5s ease;
       overflow-x: hidden;
+      position: relative;
     }
 
-    body::before {
-      content: '';
+    /* Interactive Matrix Canvas Background Layer */
+    #bgCanvas {
       position: fixed;
       inset: 0;
-      background-image:
-        linear-gradient(rgba(124, 109, 250, 0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124, 109, 250, 0.02) 1px, transparent 1px);
-      background-size: 50px 50px;
-      pointer-events: none;
       z-index: 0;
+      pointer-events: auto;
+    }
+
+    /* CSS Geometric Grid Layer Overlay */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background-image: 
+        radial-gradient(var(--bg-dots) 1.5px, transparent 1.5px), 
+        linear-gradient(to right, var(--bg-dots) 1px, transparent 1px), 
+        linear-gradient(to bottom, var(--bg-dots) 1px, transparent 1px);
+      background-size: 40px 40px, 40px 40px, 40px 40px;
+      pointer-events: none;
     }
 
     .container {
       position: relative;
-      z-index: 1;
+      z-index: 2;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -92,11 +102,6 @@
       flex-wrap: wrap;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-    }
-
     .brand h1 {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 32px;
@@ -108,8 +113,8 @@
       line-height: 1;
     }
 
-    .brand h1 .logo-icon { animation: rotateGlobe 20s linear infinite; display: inline-block; }
-    @keyframes rotateGlobe { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .brand h1 .logo-icon { display: inline-block; transition: transform 0.3s ease; }
+    .brand:hover h1 .logo-icon { transform: scale(1.1) rotate(15deg); }
     .brand h1 .brand-dot { color: var(--accent); }
 
     .header-right {
@@ -130,12 +135,15 @@
       padding: 12px 16px;
       border-radius: 14px;
       height: 48px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       transition: var(--transition-smooth);
     }
 
     .theme-toggle:hover {
       border-color: var(--accent);
-      background: rgba(124, 109, 250, 0.02);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.1);
     }
 
     .theme-toggle-label {
@@ -157,7 +165,7 @@
 
     .toggle-track.on {
       background: rgba(var(--accent-rgb), 0.15);
-      border-color: rgba(var(--accent-rgb), 0.5);
+      border-color: rgba(var(--accent-rgb), 0.3);
     }
 
     .toggle-thumb {
@@ -184,8 +192,8 @@
     .search-wrap input {
       width: 100%;
       background: var(--surface);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid var(--border-strong);
       border-radius: 14px;
       padding: 14px 16px 14px 48px;
@@ -220,6 +228,8 @@
       top: calc(100% + 8px);
       left: 0; right: 0;
       background: var(--surface2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border-strong);
       border-radius: 14px;
       overflow: hidden;
@@ -242,16 +252,21 @@
     #suggestions .suggestion-item:hover { background: rgba(124, 109, 250, 0.08); }
     #suggestions .suggestion-item .tz-hint { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
 
-    /* ── HIGH-CONTRAST TIMELINE SCRUBBER CARD ── */
+    /* ── TIME SYSTEM SCRUBBER TIMELINE CARD ── */
     .timeline-card {
       background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid var(--border-strong);
       border-radius: 24px;
       padding: 28px 32px;
       margin-bottom: 40px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      transition: var(--transition-smooth);
+    }
+
+    .timeline-card:hover {
+      border-color: rgba(var(--accent-rgb), 0.2);
     }
 
     .timeline-top {
@@ -263,7 +278,6 @@
       gap: 12px;
     }
 
-    /* Increased core time matrix font sizing dramatically */
     .timeline-label {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 15px;
@@ -325,7 +339,7 @@
       border: 4px solid var(--bg);
       box-shadow: 0 0 16px rgba(124, 109, 250, 0.6);
       cursor: pointer;
-      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
       margin-top: -10px;
     }
 
@@ -362,31 +376,32 @@
 
     .clock-card {
       background: var(--surface);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid var(--border-strong);
       border-radius: 24px;
       padding: 28px;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+      transition: var(--transition-smooth);
       position: relative;
       overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
     }
 
     .clock-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-6px) scale(1.01);
       border-color: var(--border-hover);
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
     }
 
     .clock-card.is-home {
       border-color: rgba(124, 109, 250, 0.6);
-      box-shadow: 0 8px 24px rgba(124, 109, 250, 0.08);
+      box-shadow: 0 8px 32px rgba(124, 109, 250, 0.1);
     }
 
-    /* Ambient Dynamic Glowing Background Layers */
+    /* Animated Liquid Background Fluid Orbs */
     .clock-card::after {
       content: '';
       position: absolute;
@@ -396,16 +411,22 @@
       z-index: 1;
       filter: blur(65px);
       opacity: 0;
-      transition: background 0.6s ease, opacity 0.6s ease;
       pointer-events: none;
+      animation: morphLiquid 10s ease-in-out infinite alternate;
+      transition: background 0.6s ease, opacity 0.6s ease;
     }
 
-    .clock-card.ambient-morning::after   { background: linear-gradient(135deg, #ff9d6c, #ffdb8b); opacity: 0.25; }
-    .clock-card.ambient-afternoon::after { background: linear-gradient(135deg, #4facfe, #00f2fe); opacity: 0.22; }
-    .clock-card.ambient-evening::after   { background: linear-gradient(135deg, #f857a6, #ff5858); opacity: 0.28; }
-    .clock-card.ambient-night::after     { background: linear-gradient(135deg, #30197d, #ec38bc); opacity: 0.35; }
+    @keyframes morphLiquid {
+      0% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: translate(0, 0) scale(1); }
+      100% { border-radius: 70% 30% 52% 48% / 60% 40% 60% 40%; transform: translate(-20px, 20px) scale(1.15); }
+    }
 
-    /* High contrast adaptive layout systems */
+    .clock-card.ambient-morning::after   { background: linear-gradient(135deg, #ff9d6c, #ffdb8b); opacity: 0.28; }
+    .clock-card.ambient-afternoon::after { background: linear-gradient(135deg, #4facfe, #00f2fe); opacity: 0.24; }
+    .clock-card.ambient-evening::after   { background: linear-gradient(135deg, #f857a6, #ff5858); opacity: 0.32; }
+    .clock-card.ambient-night::after     { background: linear-gradient(135deg, #30197d, #ec38bc); opacity: 0.45; }
+
+    /* High-contrast adaptive system blocks */
     .clock-card.ambient-morning, .clock-card.ambient-afternoon {
       --text: #0f0f1a;
       --muted: #4b4b5a;
@@ -426,7 +447,7 @@
     }
     
     [data-theme="dark"] .clock-card.ambient-evening, [data-theme="dark"] .clock-card.ambient-night {
-      background: rgba(20, 20, 32, 0.75);
+      background: rgba(18, 18, 29, 0.75);
     }
     [data-theme="light"] .clock-card.ambient-evening, [data-theme="light"] .clock-card.ambient-night {
       background: rgba(15, 15, 24, 0.85);
@@ -584,7 +605,7 @@
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      opacity: 0.6;
+      opacity: 0.5;
       padding: 4px 8px;
       border-radius: 6px;
       color: var(--text);
@@ -636,6 +657,9 @@
   </style>
 </head>
 <body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="grid-overlay"></div>
 
 <div class="container">
   <header>
@@ -689,6 +713,100 @@
 <div id="toast"></div>
 
 <script>
+// ── ANIMATED BACKGROUND INTERACTIVE MATRIX ENGINE ──
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+
+let particles = [];
+const mouse = { x: null, y: null, radius: 120 };
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+window.addEventListener('mousemove', (e) => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+});
+
+window.addEventListener('mouseleave', () => {
+  mouse.x = null;
+  mouse.y = null;
+});
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 0.5;
+    this.baseX = this.x;
+    this.baseY = this.y;
+    this.density = (Math.random() * 30) + 10;
+    this.color = document.documentElement.getAttribute('data-theme') === 'light' 
+      ? 'rgba(124, 109, 250, 0.15)' 
+      : 'rgba(124, 109, 250, 0.25)';
+  }
+  draw() {
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.closePath();
+    ctx.fill();
+  }
+  update() {
+    this.color = document.documentElement.getAttribute('data-theme') === 'light' 
+      ? 'rgba(124, 109, 250, 0.12)' 
+      : 'rgba(124, 109, 250, 0.22)';
+      
+    let dx = mouse.x - this.x;
+    let dy = mouse.y - this.y;
+    let distance = Math.hypot(dx, dy);
+    
+    if (distance < mouse.radius && mouse.x !== null) {
+      let forceDirectionX = dx / distance;
+      let forceDirectionY = dy / distance;
+      let maxDistance = mouse.radius;
+      let force = (maxDistance - distance) / maxDistance;
+      let directionX = forceDirectionX * force * this.density;
+      let directionY = forceDirectionY * force * this.density;
+      this.x -= directionX;
+      this.y -= directionY;
+    } else {
+      if (this.x !== this.baseX) {
+        let dx = this.x - this.baseX;
+        this.x -= dx / 15;
+      }
+      if (this.y !== this.baseY) {
+        let dy = this.y - this.baseY;
+        this.y -= dy / 15;
+      }
+    }
+  }
+}
+
+function initParticles() {
+  particles = [];
+  const numberOfParticles = (canvas.width * canvas.height) / 9000;
+  for (let i = 0; i < numberOfParticles; i++) {
+    particles.push(new Particle());
+  }
+}
+initParticles();
+window.addEventListener('resize', initParticles);
+
+function animateParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < particles.length; i++) {
+    particles[i].update();
+    particles[i].draw();
+  }
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
 // ── THEME INTERACTIVE MANAGEMENT ────────────────
 function toggleTheme() {
   const html = document.documentElement;
@@ -963,6 +1081,13 @@ function toggleAmPm(cityIndex) {
   renderClocks();
 }
 
+function setHomeBase(index) {
+  homeCityIana = trackedCities[index].iana;
+  updateSliderElement();
+  renderClocks();
+}
+
+// ── SYNCHRONIZED TIMELINE UPDATER FLOWS ─────────
 function updateSliderElement() {
   if (baseUTCms === null) return;
   const utcMs = getCurrentUTCms();
