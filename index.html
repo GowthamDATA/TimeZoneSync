@@ -25,8 +25,6 @@
       --toggle-icon: "☀️";
       --slider-track: #18181f;
       --card-glow: rgba(124,109,250,0.05);
-      --day-bg: #1e1b10;
-      --night-bg: #0f0f18;
     }
 
     [data-theme="light"] {
@@ -39,8 +37,6 @@
       --toggle-icon: "🌙";
       --slider-track: #e4e4ee;
       --card-glow: rgba(124,109,250,0.03);
-      --day-bg: #fffbeb;
-      --night-bg: #f1f1f9;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -385,16 +381,20 @@
     }
 
     .clock-card {
-      background-color: var(--surface);
       border: 2px solid var(--border);
       border-radius: 16px;
       padding: 22px 24px;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      transition: border-color 0.3s, transform 0.2s, background-color 0.4s ease;
+      transition: border-color 0.3s, transform 0.2s, background 0.4s ease;
       position: relative;
       overflow: hidden;
+      color: #f0eff8;
+    }
+
+    [data-theme="light"] .clock-card {
+      color: #0f0f1a;
     }
 
     .clock-card.is-home {
@@ -406,7 +406,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at 90% 10%, var(--card-glow), transparent 60%);
+      background: radial-gradient(circle at 90% 10%, rgba(255,255,255,0.04), transparent 60%);
       pointer-events: none;
     }
 
@@ -418,18 +418,29 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      z-index: 2;
+    }
+
+    .city-title-area {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .city-icon {
+      font-size: 20px;
+      line-height: 1;
     }
 
     .city-name {
       font-family: 'Syne', sans-serif;
       font-size: 17px;
       font-weight: 700;
-      color: var(--text);
     }
 
     .tz-label {
       font-size: 11px;
-      color: var(--muted);
+      opacity: 0.75;
       font-family: 'DM Mono', monospace;
       margin-top: 3px;
     }
@@ -437,25 +448,19 @@
     .badge {
       font-size: 10px;
       font-weight: 700;
-      padding: 3px 9px;
+      padding: 4px 10px;
       border-radius: 20px;
       text-transform: uppercase;
       letter-spacing: 0.07em;
       flex-shrink: 0;
-    }
-
-    .badge-day { background: #fef3c7; color: #92610a; }
-    .badge-night { background: #1a1a2e; color: #a9a6d8; border: 1px solid #2e2e50; }
-
-    [data-theme="light"] .badge-night {
-      background: #2a2a50;
-      color: #c0bdee;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
 
     .time-row {
       display: flex;
       align-items: baseline;
       gap: 4px;
+      z-index: 2;
     }
 
     .time-input-container {
@@ -464,7 +469,6 @@
       font-family: 'Nunito', sans-serif;
       font-size: 44px;
       font-weight: 900;
-      color: var(--text);
     }
 
     .time-input-container input {
@@ -483,7 +487,11 @@
     }
 
     .time-input-container input:focus {
-      background-color: rgba(124,109,250,0.15);
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    [data-theme="light"] .time-input-container input:focus {
+      background-color: rgba(0, 0, 0, 0.06);
     }
 
     .time-separator {
@@ -501,7 +509,7 @@
       font-family: 'Nunito', sans-serif;
       font-size: 20px;
       font-weight: 700;
-      color: var(--muted);
+      opacity: 0.65;
       font-variant-numeric: tabular-nums;
       line-height: 1;
       margin-left: 6px;
@@ -518,9 +526,12 @@
       user-select: none;
       padding: 2px 4px;
       border-radius: 4px;
-      transition: background-color 0.2s;
+      transition: background-color 0.2s, color 0.2s;
       margin-left: 4px;
     }
+
+    [data-theme="dark"] .time-ampm { color: #a399ff; }
+    [data-theme="light"] .time-ampm { color: #5042cc; }
 
     .time-ampm:hover {
       background-color: rgba(124,109,250,0.15);
@@ -530,23 +541,30 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-top: 1px solid var(--border);
+      border-top: 1px solid rgba(255,255,255,0.1);
       padding-top: 12px;
       font-size: 12px;
-      color: var(--muted);
+      z-index: 2;
+    }
+
+    [data-theme="light"] .card-footer {
+      border-top-color: rgba(0,0,0,0.08);
     }
 
     .day-pill {
-      background: var(--surface2);
+      background: rgba(255, 255, 255, 0.08);
       padding: 2px 8px;
       border-radius: 5px;
       font-family: 'DM Mono', monospace;
       font-size: 11px;
-      color: var(--muted);
     }
 
-    .day-pill.ahead { color: var(--accent2); border: 1px solid rgba(240,160,90,0.25); }
-    .day-pill.behind { color: var(--red); border: 1px solid rgba(240,90,90,0.2); }
+    [data-theme="light"] .day-pill {
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .day-pill.ahead { color: var(--accent2); background: rgba(240,160,90,0.1); }
+    .day-pill.behind { color: var(--red); background: rgba(240,90,90,0.1); }
 
     .action-icons {
       display: flex;
@@ -562,11 +580,12 @@
       opacity: 0;
       transition: opacity 0.2s, color 0.2s;
       padding: 2px 6px;
+      color: inherit;
     }
 
-    .home-btn { color: var(--muted); }
-    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; }
-    .remove-btn { color: var(--red); }
+    .home-btn { opacity: 0.4; }
+    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; font-weight: bold; }
+    .remove-btn { color: var(--red); opacity: 0; }
 
     .clock-card:hover .home-btn,
     .clock-card:hover .remove-btn { opacity: 1; }
@@ -790,19 +809,46 @@ function getUTCOffsetStr(ianaZone) {
   } catch { return ''; }
 }
 
-// ── COLOR GRADIENT CROSS-FADER GENERATOR ────────────────
-function getCardBackgroundStyles(hours, minutes) {
-  const decimalTime = hours + (minutes / 60);
-  let ratio = 0;
+// ── TIME OF DAY META CONFIGURATOR (BACKGROUNDS & ICONS) ──
+function getTimeOfDayMeta(hours) {
+  const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
   
-  if (decimalTime >= 6 && decimalTime < 12) {
-    ratio = (decimalTime - 6) / 6; 
-    return `linear-gradient(135deg, var(--night-bg) 0%, var(--day-bg) ${ratio * 100}%)`;
-  } else if (decimalTime >= 12 && decimalTime < 18) {
-    ratio = (decimalTime - 12) / 6; 
-    return `linear-gradient(135deg, var(--day-bg) 0%, var(--night-bg) ${ratio * 100}%)`;
+  if (hours >= 6 && hours < 12) {
+    // MORNING
+    return {
+      icon: "🌅",
+      badgeClass: "badge-day",
+      style: isDarkTheme 
+        ? "linear-gradient(135deg, #1f1c2c 0%, #928dab 100%)" // Soft dawn glow
+        : "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)"
+    };
+  } else if (hours >= 12 && hours < 17) {
+    // AFTERNOON
+    return {
+      icon: "☀️",
+      badgeClass: "badge-day",
+      style: isDarkTheme
+        ? "linear-gradient(135deg, #1e293b 0%, #334155 100%)" // Radiant day dark
+        : "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)"
+    };
+  } else if (hours >= 17 && hours < 20) {
+    // EVENING
+    return {
+      icon: "🌇",
+      badgeClass: "badge-night",
+      style: isDarkTheme
+        ? "linear-gradient(135deg, #311b92 0%, #000000 100%)" // Vivid dusk shadow
+        : "linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)"
+    };
   } else {
-    return `var(--night-bg)`; 
+    // NIGHT
+    return {
+      icon: "🌙",
+      badgeClass: "badge-night",
+      style: isDarkTheme
+        ? "linear-gradient(135deg, #0f0c20 0%, #06040a 100%)" // Clear deep velvet space
+        : "linear-gradient(135deg, #2c3e50 0%, #000000 100%)"
+    };
   }
 }
 
@@ -834,26 +880,29 @@ function renderClocks() {
     const { hours, minutes, seconds } = getCityMinutes(city, utcMs);
     const ampm = hours >= 12 ? 'PM' : 'AM';
     const h12 = (hours % 12) || 12;
-    const isDay = hours >= 6 && hours < 18;
     const dayOff = getDayOffset(city, utcMs);
     const utcStr = getUTCOffsetStr(city.iana);
     const dateLabel = getFormattedDate(city.iana, utcMs);
     const isHome = city.iana === homeCityIana;
 
-    const backgroundStyle = getCardBackgroundStyles(hours, minutes);
+    // Fetch dynamic icon and layout config
+    const timeMeta = getTimeOfDayMeta(hours);
 
     let dayPillHtml = `<span class="day-pill">Same day</span>`;
     if (dayOff > 0) dayPillHtml = `<span class="day-pill ahead">+${dayOff} day</span>`;
     if (dayOff < 0) dayPillHtml = `<span class="day-pill behind">${dayOff} day</span>`;
 
     grid.innerHTML += `
-      <div class="clock-card ${isHome ? 'is-home' : ''}" style="background: ${backgroundStyle}">
+      <div class="clock-card ${isHome ? 'is-home' : ''}" style="background: ${timeMeta.style}">
         <div class="card-header">
-          <div>
-            <div class="city-name" title="${city.name}">${city.name.split(',')[0]}</div>
-            <div class="tz-label">${city.zone} · ${utcStr}</div>
+          <div class="city-title-area">
+            <span class="city-icon" title="Local conditions summary">${timeMeta.icon}</span>
+            <div>
+              <div class="city-name" title="${city.name}">${city.name.split(',')[0]}</div>
+              <div class="tz-label">${city.zone} · ${utcStr}</div>
+            </div>
           </div>
-          <span class="badge ${isDay ? 'badge-day' : 'badge-night'}">${dateLabel}</span>
+          <span class="badge ${timeMeta.badgeClass}">${dateLabel}</span>
         </div>
         <div class="time-row">
           <div class="time-input-container">
@@ -922,7 +971,6 @@ function commitTimeInput(cityIndex) {
   renderClocks();
 }
 
-// Fix toggleAmPm function scope error
 function toggleAmPm(cityIndex) {
   isScrubbing = true;
   const { hours } = getCityMinutes(trackedCities[cityIndex], getCurrentUTCms());
