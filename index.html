@@ -4,13 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZoneSync — Premium World Clock & Timezone Matrix</title>
-  <meta name="description" content="ZoneSync: Live world clock showing current time in every timezone." />
+  <meta name="description" content="ZoneSync: Free live world clock showing current time in every timezone. Compare cities, convert time zones, and plan across the globe in real time." />
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
   
   <style>
+    /* ── PREMIUM SYSTEM DESIGN PROFILE TOKENS ── */
     :root {
       --accent: #7c6dfa;
       --accent-rgb: 124, 109, 250;
@@ -23,105 +24,532 @@
     [data-theme="dark"] {
       --bg: #09090e;
       --surface: rgba(18, 18, 29, 0.6);
+      --surface-hover: rgba(26, 26, 41, 0.75);
       --surface2: rgba(30, 30, 46, 0.5);
       --border: rgba(255, 255, 255, 0.08);
       --border-strong: rgba(255, 255, 255, 0.18);
+      --border-hover: rgba(124, 109, 250, 0.5);
       --text: #f0eff8;
       --muted: #8e8da4;
       --slider-track: #171725;
       --input-bg: rgba(255, 255, 255, 0.04);
+      --bg-dots: rgba(255, 255, 255, 0.015);
     }
 
     [data-theme="light"] {
       --bg: #f3f3f8;
       --surface: rgba(255, 255, 255, 0.7);
+      --surface-hover: rgba(255, 255, 255, 0.85);
       --surface2: rgba(230, 230, 240, 0.5);
       --border: rgba(0, 0, 0, 0.06);
       --border-strong: rgba(0, 0, 0, 0.14);
+      --border-hover: rgba(124, 109, 250, 0.4);
       --text: #0f0f1a;
       --muted: #6e6e82;
       --slider-track: #e2e2ec;
       --input-bg: rgba(0, 0, 0, 0.03);
+      --bg-dots: rgba(0, 0, 0, 0.015);
     }
 
-    body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; min-height: 100vh; padding: 40px 24px; transition: var(--transition-smooth); }
-    .container { max-width: 1200px; margin: 0 auto; position: relative; z-index: 2; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      padding: 40px 24px 80px;
+      transition: background 0.5s ease, color 0.5s ease;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    #bgCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: auto;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background-image: 
+        radial-gradient(var(--bg-dots) 1.5px, transparent 1.5px), 
+        linear-gradient(to right, var(--bg-dots) 1px, transparent 1px), 
+        linear-gradient(to bottom, var(--bg-dots) 1px, transparent 1px);
+      background-size: 40px 40px, 40px 40px, 40px 40px;
+      pointer-events: none;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 24px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .brand h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      line-height: 1;
+    }
+
+    .brand h1 .logo-icon { display: inline-block; transition: transform 0.3s ease; }
+    .brand:hover h1 .logo-icon { transform: scale(1.1) rotate(15deg); }
+    .brand h1 .brand-dot { color: var(--accent); }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 14px;
+      height: 48px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: var(--transition-smooth);
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.1);
+    }
+
+    .theme-toggle-label {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .toggle-track {
+      width: 44px; height: 22px;
+      border-radius: 30px;
+      background: var(--slider-track);
+      border: 1px solid var(--border-strong);
+      position: relative;
+      transition: var(--transition-smooth);
+    }
+
+    .toggle-track.on {
+      background: rgba(var(--accent-rgb), 0.15);
+      border-color: rgba(var(--accent-rgb), 0.3);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s;
+      font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .toggle-track.on .toggle-thumb {
+      transform: translateX(22px);
+      background: var(--accent);
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 360px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 14px 16px 14px 48px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      outline: none;
+      height: 48px;
+      transition: var(--transition-smooth);
+    }
+
+    .search-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(124, 109, 250, 0.12);
+      background: var(--surface-hover);
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 16px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      width: 18px; height: 18px;
+      pointer-events: none;
+      transition: var(--transition-smooth);
+    }
+
+    .search-wrap input:focus + svg { color: var(--accent); }
+
+    #suggestions {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0; right: 0;
+      background: var(--surface2);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      overflow: hidden;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    }
+
+    #suggestions .suggestion-item {
+      padding: 12px 18px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s ease;
+      color: var(--text);
+    }
+
+    #suggestions .suggestion-item:hover { background: rgba(124, 109, 250, 0.08); }
+    #suggestions .suggestion-item .tz-hint { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+    /* ── TIME SYSTEM SCRUBBER TIMELINE CARD ── */
+    .timeline-card {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-strong);
+      border-radius: 24px;
+      padding: 28px 32px;
+      margin-bottom: 40px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+      transition: var(--transition-smooth);
+    }
+
+    .timeline-card:hover {
+      border-color: rgba(var(--accent-rgb), 0.2);
+    }
+
+    .timeline-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .timeline-label {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      background: rgba(255,255,255,0.04);
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    [data-theme="light"] .timeline-label { background: rgba(0,0,0,0.03); }
+
+    #sliderDisplay {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(124, 109, 250, 0.08);
+      padding: 6px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(124, 109, 250, 0.3);
+    }
+
+    .tick-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding: 0 6px;
+    }
+
+    .tick-row span {
+      font-size: 11px;
+      color: var(--text);
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0.8;
+    }
+
+    input[type="range"].time-slider {
+      -webkit-appearance: none;
+      width: 100%; height: 8px;
+      border-radius: 4px;
+      background: var(--slider-track);
+      border: 1px solid var(--border-strong);
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"].time-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 4px solid var(--surface2);
+      box-shadow: 0 0 16px rgba(124, 109, 250, 0.6);
+      cursor: pointer;
+      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-top: -10px;
+    }
+
+    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+    .timeline-bottom-controls {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .date-nav-matrix {
+      display: flex;
+      align-items: center;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 4px;
+      border-radius: 12px;
+      gap: 2px;
+    }
+
+    .date-nav-matrix .date-step-btn {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .date-nav-matrix .date-step-btn:hover { background: rgba(124, 109, 250, 0.1); color: var(--accent); }
+    .date-nav-matrix .date-step-btn.is-active { background: var(--accent); color: #fff; }
+
+    .utility-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    .utility-btn {
+      background: transparent;
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .utility-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,109,250,0.04); }
+
+    /* ── CLOCK DASHBOARD GRID ── */
+    .clock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    .clock-card {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-strong);
+      border-radius: 24px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+    }
+
+    .clock-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      border-color: var(--border-hover);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+    }
+
+    .clock-card.is-home {
+      border-color: rgba(124, 109, 250, 0.6);
+      box-shadow: 0 8px 32px rgba(124, 109, 250, 0.1);
+    }
+
+    .clock-card::after {
+      content: '';
+      position: absolute;
+      width: 260px; height: 260px;
+      top: -100px; right: -100px;
+      border-radius: 50%;
+      z-index: 1;
+      filter: blur(65px);
+      opacity: 0;
+      pointer-events: none;
+      animation: morphLiquid 10s ease-in-out infinite alternate;
+      transition: background 0.6s ease, opacity 0.6s ease;
+    }
+
+    @keyframes morphLiquid {
+      0% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: translate(0, 0) scale(1); }
+      100% { border-radius: 70% 30% 52% 48% / 60% 40% 60% 40%; transform: translate(-20px, 20px) scale(1.15); }
+    }
+
+    .clock-card.ambient-morning::after   { background: linear-gradient(135deg, #ff9d6c, #ffdb8b); opacity: 0.25; }
+    .clock-card.ambient-afternoon::after { background: linear-gradient(135deg, #4facfe, #00f2fe); opacity: 0.22; }
+    .clock-card.ambient-evening::after   { background: linear-gradient(135deg, #f857a6, #ff5858); opacity: 0.28; }
+    .clock-card.ambient-night::after     { background: linear-gradient(135deg, #30197d, #ec38bc); opacity: 0.35; }
+
+    .clock-card.ambient-morning, .clock-card.ambient-afternoon {
+      --text: #0f0f1a;
+      --muted: #4b4b5a;
+      --border: rgba(0, 0, 0, 0.12);
+    }
     
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
-    .brand h1 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
-    .brand-dot { color: var(--accent); }
+    [data-theme="dark"] .clock-card.ambient-morning, [data-theme="dark"] .clock-card.ambient-afternoon { background: rgba(255, 255, 255, 0.92); }
+    [data-theme="light"] .clock-card.ambient-morning, [data-theme="light"] .clock-card.ambient-afternoon { background: rgba(255, 255, 255, 0.97); }
 
-    .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .clock-card.ambient-evening, .clock-card.ambient-night {
+      --text: #f0eff8;
+      --muted: #a4a3bc;
+      --border: rgba(255, 255, 255, 0.15);
+    }
     
-    .timeline-card { background: var(--surface); backdrop-filter: blur(16px); border: 1px solid var(--border-strong); border-radius: 24px; padding: 28px; margin-bottom: 30px; }
-    .timeline-top { display: flex; justify-content: space-between; margin-bottom: 20px; }
-    .timeline-label { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; color: var(--accent); }
-    
-    .clock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
-    .clock-card { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 24px; padding: 28px; position: relative; overflow: hidden; }
-    
-    #bgCanvas { position: fixed; inset: 0; z-index: 0; }
-  </style>
-</head>
-<body>
-<canvas id="bgCanvas"></canvas>
+    [data-theme="dark"] .clock-card.ambient-evening, [data-theme="dark"] .clock-card.ambient-night { background: rgba(18, 18, 29, 0.75); }
+    [data-theme="light"] .clock-card.ambient-evening, [data-theme="light"] .clock-card.ambient-night { background: rgba(15, 15, 24, 0.85); }
 
-<div class="container">
-  <header>
-    <div class="brand"><h1>🌐 Zone<span class="brand-dot">Sync</span></h1></div>
-    <div class="header-right">
-       <button class="theme-toggle" onclick="toggleTheme()">Toggle Mode</button>
-       <input type="text" id="citySearch" placeholder="Search cities..." oninput="debounceSearch(this.value)">
-    </div>
-  </header>
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      z-index: 2;
+    }
 
-  <div class="timeline-card">
-    <div class="timeline-top">
-      <span class="timeline-label">⏱ Home Time Core Matrix</span>
-      <span id="sliderDisplay">—</span>
-    </div>
-    <input type="range" id="masterSlider" min="0" max="1439" value="0" oninput="onSliderChange()" style="width:100%">
-    <div class="timeline-bottom-controls">
-        <button class="utility-btn" onclick="copyTimelineToClipboard()">📋 Copy Times</button>
-        <button class="utility-btn" onclick="resetToNow()">↺ Sync to Real-Time</button>
-    </div>
-  </div>
+    .city-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      max-width: 70%;
+    }
 
-  <div class="clock-grid" id="clockGrid"></div>
-</div>
+    .status-orb {
+      font-size: 22px;
+      line-height: 1;
+      flex-shrink: 0;
+    }
 
-<script>
-// Logic container: Optimized for persistence and synchronization
-let trackedCities = JSON.parse(localStorage.getItem('zs-cities')) || [{name: "Bengaluru, India", iana: "Asia/Kolkata"}];
-let homeCityIana = localStorage.getItem('zs-home') || "Asia/Kolkata";
-let scrubOffsetMinutes = 0;
+    .city-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      /* Accessibility & Layout Integrity */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
 
-function toggleTheme() {
-  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-  const newTheme = isDark ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('zonesync-theme', newTheme);
-}
+    .tz-info {
+      font-size: 12px;
+      color: var(--muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 2px;
+    }
 
-function resetToNow() {
-  scrubOffsetMinutes = 0;
-  renderClocks();
-}
+    .date-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(124, 109, 250, 0.1);
+      border: 1px solid var(--border);
+      color: var(--text);
+      z-index: 2;
+      flex-shrink: 0;
+    }
 
-async function renderClocks() {
-  const grid = document.getElementById('clockGrid');
-  grid.innerHTML = '';
-  // Implementation of clock rendering loop...
-}
+    .time-display-row {
+      display: flex;
+      align-items: baseline;
+      gap: 2px;
+      z-index: 2;
+    }
 
-// Ensure all other functions (fetchOnlineTime, renderClocks, etc) are called here
-(async () => {
-  const theme = localStorage.getItem('zonesync-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', theme);
-  await fetchOnlineTime();
-  renderClocks();
-  setInterval(renderClocks, 1000);
-})();
-</script>
-</body>
-</html>
+    .input-time-engine {
+      display: inline-flex;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 38px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text);
+    }
+
+    .input-time-engine input {
+      background: transparent;
+      border: 1px solid transparent;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      color: var(--text);
+      width:
