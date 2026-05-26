@@ -552,4 +552,681 @@
       font-size: inherit;
       font-weight: inherit;
       color: var(--text);
-      width:
+      width: 58px;
+      padding: 0;
+      text-align: center;
+      outline: none;
+      border-radius: 8px;
+      transition: background-color 0.2s;
+    }
+
+    .input-time-engine input:focus { background: rgba(124, 109, 250, 0.15); }
+
+    .divider-dots {
+      animation: flashDot 2s infinite;
+      user-select: none;
+      opacity: 0.8;
+      padding: 0 1px;
+    }
+
+    @keyframes flashDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
+
+    .seconds-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      margin-left: 4px;
+    }
+
+    .ampm-trigger {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      padding: 4px 6px;
+      border-radius: 6px;
+      transition: var(--transition-smooth);
+      margin-left: 4px;
+    }
+
+    .ampm-trigger:hover { background: rgba(124, 109, 250, 0.15); }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+      font-size: 12px;
+      z-index: 2;
+    }
+
+    .day-pill {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.05);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .day-pill.ahead { color: var(--accent2); background: rgba(240,160,90,0.06); border: 1px solid rgba(240,160,90,0.15); }
+    .day-pill.behind { color: var(--red); background: rgba(240,90,90,0.06); border: 1px solid rgba(240,90,90,0.15); }
+
+    .footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .home-btn, .remove-btn {
+      background: transparent;
+      border: none;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      opacity: 0.5;
+      padding: 4px 8px;
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      transition: var(--transition-smooth);
+    }
+
+    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; font-weight: 700; }
+    .remove-btn { color: var(--red); }
+
+    .clock-card:hover .home-btn,
+    .clock-card:hover .remove-btn { opacity: 0.8; }
+    .home-btn:hover, .remove-btn:hover { opacity: 1 !important; background: rgba(124, 109, 250, 0.08); }
+
+    /* Toast Overlays */
+    #toast {
+      position: fixed;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--border-hover);
+      color: var(--text);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      opacity: 0;
+      transition: var(--transition-smooth);
+      pointer-events: none;
+      z-index: 999;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 768px) {
+      body { padding: 24px 16px 60px; }
+      header { flex-direction: row; justify-content: space-between; align-items: center; }
+      .header-right { width: auto; justify-content: flex-end; }
+      .search-wrap { width: 260px; }
+      .timeline-bottom-controls { flex-direction: column; align-items: stretch; }
+      .utility-actions { width: 100%; justify-content: space-between; }
+    }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .header-right { width: 100%; justify-content: space-between; }
+      .search-wrap { width: 100%; }
+      .date-nav-matrix { justify-content: space-between; }
+      .date-step-btn { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="grid-overlay"></div>
+
+<div class="container">
+  <header>
+    <div class="brand">
+      <h1>
+        <span class="logo-icon">🌐</span>
+        <span class="brand-name">Zone<span class="brand-dot">Sync</span></span>
+      </h1>
+    </div>
+
+    <div class="header-right">
+      <div class="theme-toggle" onclick="toggleTheme()" title="Switch canvas lighting profiles">
+        <span class="theme-toggle-label" id="themeLabel">Dark mode</span>
+        <div class="toggle-track on" id="toggleTrack">
+          <div class="toggle-thumb" id="toggleThumb">🌙</div>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" id="citySearch" placeholder="Type city, region, or terminal node..."
+          autocomplete="off" oninput="debounceSearch(this.value)" onkeydown="handleSearchKey(event)" />
+        <div id="suggestions"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="timeline-card">
+    <div class="timeline-top">
+      <span class="timeline-label" id="scrubberLabel">⏱ Home Time Core Matrix</span>
+      <span id="sliderDisplay">—</span>
+    </div>
+    <div class="tick-row" id="timelineTicks">
+      <span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11:59 PM</span>
+    </div>
+    <input type="range" id="masterSlider" class="time-slider" min="0" max="1439" value="0"
+      oninput="onSliderChange()" />
+    
+    <div class="timeline-bottom-controls">
+      <div class="date-nav-matrix">
+        <button class="date-step-btn" id="day-minus-1" onclick="setDateOffset(-1)">-1 Day</button>
+        <button class="date-step-btn is-active" id="day-0" onclick="setDateOffset(0)">Today</button>
+        <button class="date-step-btn" id="day-plus-1" onclick="setDateOffset(1)">+1 Day</button>
+      </div>
+      <div class="utility-actions">
+        <button class="utility-btn" onclick="copyTimelineToClipboard()" title="Copy current time setup to clipboard">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+          Copy Times
+        </button>
+        <div class="reset-btn">
+          <button onclick="resetToNow()">↺ Reset to live baseline</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="clock-grid" id="clockGrid"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── ANIMATED BACKGROUND INTERACTIVE MATRIX ENGINE ──
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+const mouse = { x: null, y: null, radius: 120 };
+
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
+
+class Particle {
+  constructor() {
+    this.x = Math.random() * canvas.width;
+    this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 0.5;
+    this.baseX = this.x;
+    this.baseY = this.y;
+    this.density = (Math.random() * 30) + 10;
+  }
+  draw() {
+    ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'light' ? 'rgba(124, 109, 250, 0.12)' : 'rgba(124, 109, 250, 0.22)';
+    ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.closePath(); ctx.fill();
+  }
+  update() {
+    let dx = mouse.x - this.x; let dy = mouse.y - this.y; let distance = Math.hypot(dx, dy);
+    if (distance < mouse.radius && mouse.x !== null) {
+      let force = (mouse.radius - distance) / mouse.radius;
+      this.x -= (dx / distance) * force * this.density; this.y -= (dy / distance) * force * this.density;
+    } else {
+      if (this.x !== this.baseX) this.x -= (this.x - this.baseX) / 15;
+      if (this.y !== this.baseY) this.y -= (this.y - this.baseY) / 15;
+    }
+  }
+}
+
+function initParticles() {
+  particles = []; const numberOfParticles = (canvas.width * canvas.height) / 9000;
+  for (let i = 0; i < numberOfParticles; i++) particles.push(new Particle());
+}
+initParticles(); window.addEventListener('resize', initParticles);
+
+// Accessibility Check & Tab Background Pause
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let animationFrameId;
+
+function animateParticles() {
+  if (prefersReducedMotion) return;
+  if (document.visibilityState !== 'visible') return; // Stop burning CPU on hidden tabs
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < particles.length; i++) { particles[i].update(); particles[i].draw(); }
+  animationFrameId = requestAnimationFrame(animateParticles);
+}
+if (!prefersReducedMotion) animateParticles();
+
+// ── GLOBAL DYNAMIC GEOLOCATION CONFIGURATOR ──
+let trackedCities = [];
+let homeCityIana = ""; 
+let baseUTCms = null;
+let baseLocalMs = null;
+let usingOnlineTime = false;
+let scrubOffsetMinutes = 0;
+let crossDayMinutesOffset = 0; 
+let isScrubbing = false;
+let activeSuggestionIndex = -1; 
+let currentSuggestions = [];    
+let debounceTimer;              
+
+const OFFLINE_FALLBACK_NODES = [
+  { name: "Bengaluru, Karnataka, IN", zone: "IST",       iana: "Asia/Kolkata" },
+  { name: "London, England, GB",      zone: "London",    iana: "Europe/London" },
+  { name: "New York, NY, US",         zone: "New York",  iana: "America/New_York" },
+  { name: "Los Angeles, CA, US",      zone: "Los Angeles", iana: "America/Los_Angeles" },
+  { name: "Tokyo, Tokyo, JP",         zone: "Tokyo",     iana: "Asia/Tokyo" }
+];
+
+async function initializeClientLocation() {
+  const cachedCities = localStorage.getItem('zs-tracked-nodes-v4');
+  const cachedHome = localStorage.getItem('zs-home-anchor-v4');
+
+  if (cachedCities && cachedHome) {
+    try {
+      trackedCities = JSON.parse(cachedCities);
+      homeCityIana = cachedHome;
+      return;
+    } catch(e) { localStorage.clear(); }
+  }
+
+  try {
+    const geoResponse = await fetch('https://ipapi.co/json/');
+    const geoData = await geoResponse.json();
+    if (geoData && geoData.timezone) {
+      const userCity = {
+        name: `${geoData.city}, ${geoData.region_code || geoData.region}, ${geoData.country_code}`,
+        zone: geoData.timezone.split('/').pop().replace(/_/g, ' '),
+        iana: geoData.timezone
+      };
+      homeCityIana = geoData.timezone;
+      trackedCities.push(userCity);
+    }
+  } catch (error) { 
+    console.warn("Client location lookup faulted. Using fallback nodes."); 
+  }
+  
+  if (trackedCities.length === 0) {
+    homeCityIana = "Asia/Kolkata";
+    trackedCities.push(OFFLINE_FALLBACK_NODES[0]);
+  }
+  
+  OFFLINE_FALLBACK_NODES.forEach(fb => {
+    if (!trackedCities.some(c => c.iana === fb.iana)) trackedCities.push(fb);
+  });
+  
+  saveStateToCache();
+}
+
+function saveStateToCache() {
+  localStorage.setItem('zs-tracked-nodes-v4', JSON.stringify(trackedCities));
+  localStorage.setItem('zs-home-anchor-v4', homeCityIana);
+}
+
+// ── SYNC PORT ROUTINES ──────────────────────────
+async function fetchOnlineTime() {
+  const apis = [
+    { url: 'https://worldtimeapi.org/api/timezone/UTC', parse: d => new Date(d.utc_datetime).getTime() },
+    { url: 'https://timeapi.io/api/Time/current/zone?timeZone=UTC', parse: d => new Date(d.dateTime + 'Z').getTime() },
+  ];
+  for (const api of apis) {
+    try {
+      const t0 = performance.now(); const res = await fetch(api.url); const json = await res.json();
+      const t1 = performance.now(); const rtt = (t1 - t0) / 2;
+      baseUTCms = api.parse(json) + rtt; baseLocalMs = performance.now(); usingOnlineTime = true; return;
+    } catch (e) {}
+  }
+  baseUTCms = Date.now(); baseLocalMs = performance.now(); usingOnlineTime = false;
+}
+
+function getCurrentUTCms() {
+  if (baseUTCms === null) return Date.now();
+  return baseUTCms + (performance.now() - baseLocalMs);
+}
+
+function getCityMinutes(city, utcMs) {
+  const totalOffset = (scrubOffsetMinutes + crossDayMinutesOffset) * 60_000;
+  const date = new Date(utcMs + totalOffset);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: city.iana, hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false, day: 'numeric'
+  }).formatToParts(date);
+  const get = type => parseInt(parts.find(p => p.type === type)?.value || '0');
+  let h = get('hour'); const m = get('minute'); const s = get('second');
+  if (h === 24) h = 0;
+  return { hours: h, minutes: m, seconds: s };
+}
+
+function getDayOffset(city, utcMs) {
+  const totalOffset = (scrubOffsetMinutes + crossDayMinutesOffset) * 60_000;
+  const effectiveMs = utcMs + totalOffset;
+  const getDayNum = (tz) => {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, day: 'numeric' }).formatToParts(new Date(effectiveMs));
+    return parseInt(parts.find(p => p.type === 'day')?.value || '0', 10);
+  };
+  let diff = getDayNum(city.iana) - getDayNum('UTC');
+  if (diff > 1) diff = -1; if (diff < -1) diff = 1;
+  return diff;
+}
+
+function getFormattedCalendarDate(iana, utcMs) {
+  const totalOffset = (scrubOffsetMinutes + crossDayMinutesOffset) * 60_000;
+  return new Intl.DateTimeFormat('en-US', { timeZone: iana, weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(utcMs + totalOffset));
+}
+
+function fmt2(n) { return String(n).padStart(2, '0'); }
+
+function getUTCOffsetStr(ianaZone) {
+  try {
+    const p = new Intl.DateTimeFormat('en', { timeZone: ianaZone, timeZoneName: 'shortOffset' }).formatToParts(new Date());
+    return (p.find(x => x.type === 'timeZoneName')?.value || '').replace('GMT', 'UTC');
+  } catch { return ''; }
+}
+
+function getTimezoneOffsetMinutes(iana, baseMs) {
+  const d = new Date(baseMs);
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: iana, hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(d);
+  let localTotal = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10) * 60 + parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+  let diff = localTotal - (d.getUTCHours() * 60 + d.getUTCMinutes());
+  if (diff > 720) diff -= 1440; if (diff < -720) diff += 1440;
+  return diff;
+}
+
+function getAtmosphericClass(hours) {
+  if (hours >= 5 && hours < 12)  return { name: "ambient-morning", icon: "🌅" };
+  if (hours >= 12 && hours < 17) return { name: "ambient-afternoon", icon: "☀️" };
+  if (hours >= 17 && hours < 21) return { name: "ambient-evening", icon: "🌇" };
+  return { name: "ambient-night", icon: "🌙" };
+}
+
+function renderDynamicTimelineLabels(homeTarget, utcMs) {
+  const tickContainer = document.getElementById('timelineTicks');
+  if (!tickContainer || !homeTarget) return;
+
+  const currentUTC = new Date(utcMs);
+  const anchorHours = [0, 6, 12, 18, 23.98]; 
+  const labels = anchorHours.map(h => {
+    let targetTotalMinutes = (h * 60) + (crossDayMinutesOffset + scrubOffsetMinutes);
+    let dateObj = new Date(currentUTC.getTime() + (targetTotalMinutes * 60_000));
+    
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: homeTarget.iana,
+      hour: 'numeric',
+      minute: h > 23 ? 'numeric' : undefined,
+      hour12: true
+    }).format(dateObj);
+  });
+
+  tickContainer.innerHTML = labels.map(label => `<span>${label}</span>`).join('');
+}
+
+// ── RENDERING MATRIX ENGINE ────────────────────
+function renderClocks() {
+  if (baseUTCms === null) return;
+  const utcMs = getCurrentUTCms();
+  const grid = document.getElementById('clockGrid');
+  const sliderDisplay = document.getElementById('sliderDisplay');
+  const labelText = document.getElementById('scrubberLabel');
+
+  const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
+  if (homeTarget) {
+    const homeParts = getCityMinutes(homeTarget, utcMs);
+    const homeAmPm = homeParts.hours >= 12 ? 'PM' : 'AM';
+    const homeH12 = (homeParts.hours % 12) || 12;
+    labelText.textContent = `⏱ Home Time Core Matrix — [${homeTarget.name.split(',')[0]}]`;
+    sliderDisplay.textContent = isScrubbing ? `Simulated Pivot: ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}` : `Live Tracking — ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}`;
+    
+    renderDynamicTimelineLabels(homeTarget, utcMs);
+  }
+
+  const activeId = document.activeElement ? document.activeElement.id : null;
+  const selectionStart = document.activeElement ? document.activeElement.selectionStart : null;
+
+  grid.innerHTML = '';
+  trackedCities.forEach((city, i) => {
+    const { hours, minutes, seconds } = getCityMinutes(city, utcMs);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const h12 = (hours % 12) || 12;
+    const dayOff = getDayOffset(city, utcMs);
+    const utcStr = getUTCOffsetStr(city.iana);
+    const dateLabel = getFormattedCalendarDate(city.iana, utcMs);
+    const isHome = city.iana === homeCityIana;
+    const weatherMeta = getAtmosphericClass(hours);
+
+    let dayPillHtml = `<span class="day-pill">Same cycle</span>`;
+    if (dayOff > 0) dayPillHtml = `<span class="day-pill ahead">+${dayOff} Phase</span>`;
+    if (dayOff < 0) dayPillHtml = `<span class="day-pill behind">${dayOff} Phase</span>`;
+
+    grid.innerHTML += `
+      <div class="clock-card ${isHome ? 'is-home' : ''} ${weatherMeta.name}" ondblclick="setHomeBase(${i})">
+        <div class="card-header">
+          <div class="city-identity">
+            <span class="status-orb" title="Local frame cycle">${weatherMeta.icon}</span>
+            <div>
+              <div class="city-name" title="${city.name}">${city.name.split(',')[0]}</div>
+              <div class="tz-info">${city.zone} · ${utcStr}</div>
+            </div>
+          </div>
+          <span class="date-badge">${dateLabel}</span>
+        </div>
+        <div class="time-display-row">
+          <div class="time-input-container">
+            <div class="input-time-engine">
+              <input type="text" maxlength="2" id="h-${i}" value="${fmt2(h12)}" onfocus="this.select()" oninput="handleInputMasking(this, ${i}, 'h')" onblur="commitTimeInput(${i})">
+              <span class="time-separator divider-dots">:</span>
+              <input type="text" maxlength="2" id="m-${i}" value="${fmt2(minutes)}" onfocus="this.select()" oninput="handleInputMasking(this, ${i}, 'm')" onblur="commitTimeInput(${i})">
+            </div>
+          </div>
+          <span class="seconds-counter">${fmt2(seconds)}</span>
+          <span class="ampm-trigger" onclick="event.stopPropagation(); toggleAmPm(${i})">${ampm}</span>
+        </div>
+        <div class="card-footer">
+          ${dayPillHtml}
+          <div class="action-icons">
+            <button class="home-btn" title="Anchor home pivot context" onclick="event.stopPropagation(); setHomeBase(${i})">⚓ Anchor</button>
+            <button class="remove-btn" title="Wipe node index" onclick="event.stopPropagation(); removeCity(${i})">✕ Wipe</button>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el) { el.focus(); if (selectionStart !== null) el.setSelectionRange(selectionStart, selectionStart); }
+  }
+}
+
+// ── INTERACTIVE MASKING & LOGIC ──
+function handleInputMasking(input, index, type) {
+  input.value = input.value.replace(/[^0-9]/g, '');
+  if (type === 'h' && parseInt(input.value, 10) > 12) input.value = '12';
+  if (type === 'm' && parseInt(input.value, 10) > 59) input.value = '59';
+  if (input.value.length === 2 && type === 'h') {
+    const targetNext = document.getElementById(`m-${index}`);
+    if (targetNext) targetNext.focus();
+  }
+}
+
+function handleTimeInput(e, cityIndex, type) {
+  if (e.key === 'Enter') { e.target.blur(); return; }
+  if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab') {
+    if(!e.metaKey && !e.ctrlKey) e.preventDefault();
+  }
+}
+
+function commitTimeInput(cityIndex) {
+  const hInput = document.getElementById(`h-${cityIndex}`);
+  const mInput = document.getElementById(`m-${cityIndex}`);
+  if (!hInput || !mInput) return;
+
+  const hVal = parseInt(hInput.value, 10) || 12; const mVal = parseInt(mInput.value, 10) || 0;
+  const city = trackedCities[cityIndex]; const utcMs = getCurrentUTCms();
+  const currentParts = getCityMinutes(city, utcMs); const currentAmPm = currentParts.hours >= 12 ? 'PM' : 'AM';
+  
+  let targetHours = hVal % 12; if (currentAmPm === 'PM') targetHours += 12;
+  
+  isScrubbing = true;
+  scrubOffsetMinutes += ((targetHours * 60 + mVal) - (currentParts.hours * 60 + currentParts.minutes));
+  updateSliderElement();
+  renderClocks();
+}
+
+function toggleAmPm(cityIndex) {
+  isScrubbing = true;
+  const { hours } = getCityMinutes(trackedCities[cityIndex], getCurrentUTCms());
+  scrubOffsetMinutes += (hours >= 12) ? -720 : 720;
+  updateSliderElement();
+  renderClocks();
+}
+
+function setHomeBase(index) { homeCityIana = trackedCities[index].iana; saveStateToCache(); updateSliderElement(); renderClocks(); }
+
+function updateSliderElement() {
+  if (baseUTCms === null) return;
+  const utcMs = getCurrentUTCms();
+  const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
+  const targetDate = new Date(utcMs + (scrubOffsetMinutes + crossDayMinutesOffset) * 60_000);
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: homeTarget.iana, hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(targetDate);
+  document.getElementById('masterSlider').value = (parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10) % 24) * 60 + parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+}
+
+function syncSliderToNow() { if (baseUTCms === null) return; updateSliderElement(); }
+
+function onSliderChange() {
+  if (baseUTCms === null) return;
+  isScrubbing = true;
+  const sliderVal = parseInt(document.getElementById('masterSlider').value, 10);
+  const utcMs = getCurrentUTCms();
+  const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
+  scrubOffsetMinutes = (sliderVal - getTimezoneOffsetMinutes(homeTarget.iana, utcMs)) - (new Date(utcMs).getUTCHours() * 60 + new Date(utcMs).getUTCMinutes()) - crossDayMinutesOffset;
+  renderClocks();
+}
+
+function setDateOffset(days) {
+  isScrubbing = true;
+  crossDayMinutesOffset = days * 1440;
+  document.querySelectorAll('.date-step-btn').forEach(btn => btn.classList.remove('is-active'));
+  document.getElementById(`day-${days}`).classList.add('is-active');
+  renderClocks();
+}
+
+function resetToNow() {
+  isScrubbing = false; scrubOffsetMinutes = 0; crossDayMinutesOffset = 0;
+  document.querySelectorAll('.date-step-btn').forEach(btn => btn.classList.remove('is-active'));
+  document.getElementById('day-0').classList.add('is-active');
+  syncSliderToNow(); renderClocks();
+}
+
+// ── UTILITY: COPY TO CLIPBOARD ──
+function copyTimelineToClipboard() {
+  if (baseUTCms === null) return;
+  const utcMs = getCurrentUTCms();
+  let shareText = "⏱ ZoneSync Matrix:\n";
+  
+  trackedCities.forEach(city => {
+    const parts = getCityMinutes(city, utcMs);
+    const ampm = parts.hours >= 12 ? 'PM' : 'AM';
+    const h12 = parts.hours % 12 || 12;
+    const dateLabel = getFormattedCalendarDate(city.iana, utcMs);
+    shareText += `• ${city.name.split(',')[0]}: ${fmt2(h12)}:${fmt2(parts.minutes)} ${ampm} (${dateLabel})\n`;
+  });
+
+  navigator.clipboard.writeText(shareText).then(() => {
+    showToast("Meeting matrix copied to clipboard!");
+  }).catch(() => showToast("Failed to copy clipboard data."));
+}
+
+function debounceSearch(val) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fetchGlobalCities(val), 300); }
+
+async function fetchGlobalCities(query) {
+  const box = document.getElementById('suggestions'); const q = query.trim().toLowerCase();
+  if (q.length < 2) { box.style.display = 'none'; activeSuggestionIndex = -1; return; }
+  try {
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
+    const data = await res.json();
+    if (!data.results || data.results.length === 0) { box.style.display = 'none'; activeSuggestionIndex = -1; return; }
+    currentSuggestions = data.results.filter(item => item.timezone).map(item => {
+      const regionToken = item.admin1 ? `${item.admin1}, ` : '';
+      return { name: `${item.name}, ${regionToken}${item.country_code.toUpperCase()}`, zone: item.timezone.split('/').pop().replace(/_/g, ' '), iana: item.timezone };
+    });
+    if (!currentSuggestions.length) { box.style.display = 'none'; return; }
+    box.innerHTML = currentSuggestions.map((c, idx) => `<div class="suggestion-item" id="sug-${idx}" onclick="addDynamicCity(${idx})"><span>${c.name}</span><span class="tz-hint">${c.zone}</span></div>`).join('');
+    box.style.display = 'block'; activeSuggestionIndex = -1;
+  } catch (error) { console.error("Geocoding network fault:", error); }
+}
+
+function handleSearchKey(e) {
+  const box = document.getElementById('suggestions'); const items = box.querySelectorAll('.suggestion-item');
+  if (e.key === 'ArrowDown' && activeSuggestionIndex < items.length - 1) { e.preventDefault(); activeSuggestionIndex++; updateActiveSuggestionVisuals(items); }
+  else if (e.key === 'ArrowUp' && activeSuggestionIndex > 0) { e.preventDefault(); activeSuggestionIndex--; updateActiveSuggestionVisuals(items); }
+  else if (e.key === 'Enter') { if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) items[activeSuggestionIndex].click(); else if (currentSuggestions.length > 0) addDynamicCity(0); }
+  else if (e.key === 'Escape') { box.style.display = 'none'; activeSuggestionIndex = -1; }
+}
+
+function updateActiveSuggestionVisuals(items) { items.forEach((item, idx) => { item.style.backgroundColor = (idx === activeSuggestionIndex) ? 'rgba(124, 109, 250, 0.15)' : ''; }); }
+
+function addDynamicCity(index) {
+  const city = currentSuggestions[index];
+  if (city && !trackedCities.some(c => c.iana === city.iana && c.name === city.name)) { trackedCities.push(city); saveStateToCache(); renderClocks(); }
+  document.getElementById('citySearch').value = ''; document.getElementById('suggestions').style.display = 'none'; activeSuggestionIndex = -1;
+}
+
+function removeCity(i) {
+  if (trackedCities[i].iana === homeCityIana && trackedCities.length > 1) homeCityIana = trackedCities[i === 0 ? 1 : 0].iana;
+  trackedCities.splice(i, 1); saveStateToCache(); updateSliderElement(); renderClocks();
+}
+
+function toggleTheme() {
+  const html = document.documentElement; const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('toggleTrack').classList.toggle('on', !isDark);
+  document.getElementById('toggleThumb').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('themeLabel').textContent = isDark ? 'Light mode' : 'Dark mode';
+  localStorage.setItem('zonesync-theme', isDark ? 'light' : 'dark');
+  renderClocks();
+}
+
+async function forceSyncBaseline() {
+  await fetchOnlineTime();
+  if (!isScrubbing) syncSliderToNow();
+  renderClocks();
+}
+
+// Re-anchor atomic alignments immediately upon tab visibility activation to eliminate loop drift
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    forceSyncBaseline();
+    if (!prefersReducedMotion) animateParticles(); // Resume animation
+  } else {
+    cancelAnimationFrame(animationFrameId); // Stop processing graphics
+  }
+});
+
+(async () => {
+  const savedTheme = localStorage.getItem('zonesync-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  document.getElementById('toggleTrack').classList.toggle('on', savedTheme === 'dark');
+  document.getElementById('toggleThumb').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = savedTheme === 'dark' ? 'Dark mode' : 'Light mode';
+
+  await initializeClientLocation();
+  await fetchOnlineTime();
+  syncSliderToNow(); renderClocks();
+  setInterval(() => { if (!isScrubbing) syncSliderToNow(); renderClocks(); }, 1000);
+})();
+</script>
+</body>
+</html>
