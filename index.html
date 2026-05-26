@@ -390,11 +390,6 @@
       transition: border-color 0.3s, transform 0.2s, background 0.4s ease;
       position: relative;
       overflow: hidden;
-      color: #f0eff8;
-    }
-
-    [data-theme="light"] .clock-card {
-      color: #0f0f1a;
     }
 
     .clock-card.is-home {
@@ -438,9 +433,26 @@
       font-weight: 700;
     }
 
+    /* ── DYNAMIC CARD CONTRAST THEME INHERITANCE SYSTEM ── */
+    .clock-card.card-light-txt { color: #f0eff8 !important; }
+    .clock-card.card-dark-txt { color: #0f0f1a !important; }
+
+    .clock-card.card-light-txt .tz-label { color: rgba(240, 239, 248, 0.7); }
+    .clock-card.card-dark-txt .tz-label { color: rgba(15, 15, 26, 0.7); }
+
+    .clock-card.card-light-txt .time-seconds { color: rgba(240, 239, 248, 0.5); }
+    .clock-card.card-dark-txt .time-seconds { color: rgba(15, 15, 26, 0.5); }
+
+    .clock-card.card-light-txt .time-input-container input { color: #f0eff8; }
+    .clock-card.card-dark-txt .time-input-container input { color: #0f0f1a; }
+
+    .clock-card.card-light-txt .home-btn,
+    .clock-card.card-light-txt .remove-btn { color: #f0eff8; }
+    .clock-card.card-dark-txt .home-btn,
+    .clock-card.card-dark-txt .remove-btn { color: #0f0f1a; }
+
     .tz-label {
       font-size: 11px;
-      opacity: 0.75;
       font-family: 'DM Mono', monospace;
       margin-top: 3px;
     }
@@ -455,6 +467,9 @@
       flex-shrink: 0;
       box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     }
+
+    .badge-day { background: #fef3c7; color: #92610a; }
+    .badge-night { background: #1a1a2e; color: #a9a6d8; border: 1px solid #2e2e50; }
 
     .time-row {
       display: flex;
@@ -477,7 +492,6 @@
       font-family: inherit;
       font-size: inherit;
       font-weight: inherit;
-      color: inherit;
       width: 58px;
       padding: 0;
       text-align: center;
@@ -486,13 +500,8 @@
       transition: background-color 0.2s;
     }
 
-    .time-input-container input:focus {
-      background-color: rgba(255, 255, 255, 0.15);
-    }
-
-    [data-theme="light"] .time-input-container input:focus {
-      background-color: rgba(0, 0, 0, 0.06);
-    }
+    .clock-card.card-light-txt .time-input-container input:focus { background-color: rgba(255,255,255,0.15); }
+    .clock-card.card-dark-txt .time-input-container input:focus { background-color: rgba(0,0,0,0.07); }
 
     .time-separator {
       animation: blink 2s infinite;
@@ -509,7 +518,6 @@
       font-family: 'Nunito', sans-serif;
       font-size: 20px;
       font-weight: 700;
-      opacity: 0.65;
       font-variant-numeric: tabular-nums;
       line-height: 1;
       margin-left: 6px;
@@ -519,7 +527,6 @@
       font-family: 'Nunito', sans-serif;
       font-size: 14px;
       font-weight: 800;
-      color: var(--accent);
       letter-spacing: 0.06em;
       text-transform: uppercase;
       cursor: pointer;
@@ -530,8 +537,8 @@
       margin-left: 4px;
     }
 
-    [data-theme="dark"] .time-ampm { color: #a399ff; }
-    [data-theme="light"] .time-ampm { color: #5042cc; }
+    .clock-card.card-light-txt .time-ampm { color: #a399ff; }
+    .clock-card.card-dark-txt .time-ampm { color: #4338ca; }
 
     .time-ampm:hover {
       background-color: rgba(124,109,250,0.15);
@@ -547,9 +554,7 @@
       z-index: 2;
     }
 
-    [data-theme="light"] .card-footer {
-      border-top-color: rgba(0,0,0,0.08);
-    }
+    .clock-card.card-dark-txt .card-footer { border-top-color: rgba(0,0,0,0.08); }
 
     .day-pill {
       background: rgba(255, 255, 255, 0.08);
@@ -559,9 +564,7 @@
       font-size: 11px;
     }
 
-    [data-theme="light"] .day-pill {
-      background: rgba(0, 0, 0, 0.05);
-    }
+    .clock-card.card-dark-txt .day-pill { background: rgba(0, 0, 0, 0.05); }
 
     .day-pill.ahead { color: var(--accent2); background: rgba(240,160,90,0.1); }
     .day-pill.behind { color: var(--red); background: rgba(240,90,90,0.1); }
@@ -580,12 +583,11 @@
       opacity: 0;
       transition: opacity 0.2s, color 0.2s;
       padding: 2px 6px;
-      color: inherit;
     }
 
     .home-btn { opacity: 0.4; }
-    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; font-weight: bold; }
-    .remove-btn { color: var(--red); opacity: 0; }
+    .clock-card.is-home .home-btn { color: var(--accent2) !important; opacity: 1; font-weight: bold; }
+    .remove-btn { color: var(--red) !important; opacity: 0; }
 
     .clock-card:hover .home-btn,
     .clock-card:hover .remove-btn { opacity: 1; }
@@ -809,45 +811,39 @@ function getUTCOffsetStr(ianaZone) {
   } catch { return ''; }
 }
 
-// ── TIME OF DAY META CONFIGURATOR (BACKGROUNDS & ICONS) ──
+// ── [FIXED LOGIC] TIME OF DAY META CONFIGURATOR WITH TEXT CONTRAST SYSTEM ──
 function getTimeOfDayMeta(hours) {
-  const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
-  
   if (hours >= 6 && hours < 12) {
     // MORNING
     return {
       icon: "🌅",
       badgeClass: "badge-day",
-      style: isDarkTheme 
-        ? "linear-gradient(135deg, #1f1c2c 0%, #928dab 100%)" // Soft dawn glow
-        : "linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%)"
+      textModeClass: "card-dark-txt", // Dark text on light golden dawn background
+      style: "linear-gradient(135deg, #fef3c7 0%, #fbcfe8 100%)" 
     };
   } else if (hours >= 12 && hours < 17) {
     // AFTERNOON
     return {
       icon: "☀️",
       badgeClass: "badge-day",
-      style: isDarkTheme
-        ? "linear-gradient(135deg, #1e293b 0%, #334155 100%)" // Radiant day dark
-        : "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)"
+      textModeClass: "card-dark-txt", // Dark text on bright sky background
+      style: "linear-gradient(135deg, #bae6fd 0%, #e0f2fe 100%)" 
     };
   } else if (hours >= 17 && hours < 20) {
     // EVENING
     return {
       icon: "🌇",
       badgeClass: "badge-night",
-      style: isDarkTheme
-        ? "linear-gradient(135deg, #311b92 0%, #000000 100%)" // Vivid dusk shadow
-        : "linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%)"
+      textModeClass: "card-light-txt", // Light text on rich sunset gradient
+      style: "linear-gradient(135deg, #f97316 0%, #4c1d95 100%)" 
     };
   } else {
     // NIGHT
     return {
       icon: "🌙",
       badgeClass: "badge-night",
-      style: isDarkTheme
-        ? "linear-gradient(135deg, #0f0c20 0%, #06040a 100%)" // Clear deep velvet space
-        : "linear-gradient(135deg, #2c3e50 0%, #000000 100%)"
+      textModeClass: "card-light-txt", // Light text on deep midnight background
+      style: "linear-gradient(135deg, #03001e 0%, #7303c0 50%, #ec38bc 100%)" 
     };
   }
 }
@@ -885,7 +881,6 @@ function renderClocks() {
     const dateLabel = getFormattedDate(city.iana, utcMs);
     const isHome = city.iana === homeCityIana;
 
-    // Fetch dynamic icon and layout config
     const timeMeta = getTimeOfDayMeta(hours);
 
     let dayPillHtml = `<span class="day-pill">Same day</span>`;
@@ -893,7 +888,7 @@ function renderClocks() {
     if (dayOff < 0) dayPillHtml = `<span class="day-pill behind">${dayOff} day</span>`;
 
     grid.innerHTML += `
-      <div class="clock-card ${isHome ? 'is-home' : ''}" style="background: ${timeMeta.style}">
+      <div class="clock-card ${isHome ? 'is-home' : ''} ${timeMeta.textModeClass}" style="background: ${timeMeta.style}">
         <div class="card-header">
           <div class="city-title-area">
             <span class="city-icon" title="Local conditions summary">${timeMeta.icon}</span>
@@ -988,13 +983,13 @@ function setHomeBase(index) {
   renderClocks();
 }
 
+// ── SLIDER INTERFACE CONTROLS ──
 function updateSliderElement() {
   if (baseUTCms === null) return;
   const d = new Date(getCurrentUTCms() + scrubOffsetMinutes * 60_000);
   document.getElementById('masterSlider').value = d.getUTCHours() * 60 + d.getUTCMinutes();
 }
 
-// ── SLIDER INTERFACE CONTROLS ──
 function syncSliderToNow() {
   if (baseUTCms === null) return;
   const d = new Date(getCurrentUTCms());
@@ -1089,7 +1084,7 @@ function handleSearchKey(e) {
     } else if (currentSuggestions.length > 0) {
       addDynamicCity(0);
     } else {
-      showToast(`No locations found matching search parameters.`);
+      showToast("No locations found matching search parameters.");
     }
   } else if (e.key === 'Escape') {
     box.style.display = 'none';
