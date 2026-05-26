@@ -895,4 +895,263 @@ function renderClocks() {
         <div class="card-footer">
           ${dayPillHtml}
           <div class="action-icons">
-            <button
+            <button class="home-btn" title="Anchor home pivot context" onclick="setHomeBase(${i})">⚓ Anchor</button>
+            <button class="remove-btn" title="Wipe node index" onclick="removeCity(${i})">✕ Wipe</button>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el) {
+      el.focus();
+      if (selectionStart !== null) el.setSelectionRange(selectionStart, selectionStart);
+    }
+  }
+}
+
+// ── INTERACTION CHANNELS ──
+function handleTimeInput(e, cityIndex, type) {
+  if (e.key === 'Enter') { e.target.blur(); return; }
+  if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab') {
+    if(!e.metaKey && !e.ctrlKey) e.preventDefault();
+  }
+}
+
+function commitTimeInput(cityIndex) {
+  const hInput = document.getElementById(`h-${cityIndex}`);
+  const mInput = document.getElementById(`m-${cityIndex}`);
+  if (!hInput || !mInput) return;
+
+  const hVal = parseInt(hInput.value) || 12;
+  const mVal = parseInt(mInput.value) || 0;
+  
+  const city = trackedCities[cityIndex];
+  const utcMs = getCurrentUTCms();
+  const currentParts = getCityMinutes(city, utcMs);
+  const currentAmPm = currentParts.hours >= 12 ? 'PM' : 'AM';
+  
+  let targetHours = hVal % 12;
+  if (currentAmPm === 'PM') targetHours += 12;
+  
+  isScrubbing = true;
+  const currentCityMinutes = currentParts.hours * 60 + currentParts.minutes;
+  const targetCityMinutes = targetHours * 60 + mVal;
+  
+  scrubOffsetMinutes += (targetCityMinutes - currentCityMinutes);
+  updateSliderElement();
+  renderClocks();
+}
+
+function toggleAmPm(cityIndex) {
+  isScrubbing = true;
+  const { hours } = getCityMinutes(trackedCities[cityIndex], getCurrentUTCms());
+  scrubOffsetMinutes += (hours >= 12) ? -720 : 720;
+  updateSliderElement();
+  renderClocks();
+}
+
+function setHomeBase(index) {
+  homeCityIana = trackedCities[index].iana;
+  updateSliderElement();
+  renderClocks();
+}
+
+// ── TIMELINE CONTROLLER ──
+function updateSliderElement() {
+  if (baseUTCms === null) return;
+  const utcMs = getCurrentUTCms();
+  const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
+  
+  const targetDate = new Date(utcMs + scrubOffsetMinutes * 60_000);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: homeTarget.iana,
+    hour: 'numeric', minute: 'numeric', hour12: false
+  }).formatToParts(targetDate);
+  
+  const hours = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+  const minutes = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+  
+  document.getElementById('masterSlider').value = (hours % 24) * 60 + minutes;
+}
+
+function syncSliderToNow() {
+  if (baseUTCms === null) return;
+  updateSliderElement();
+}
+
+function onSliderChange() {
+  if (baseUTCms === null) return;
+  isScrubbing = true;
+  
+  const sliderVal = parseInt(document.getElementById('masterSlider').value, 10);
+  const utcMs = getCurrentUTCms();
+  const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
+
+  const offsetFromUTC = getTimezoneOffsetMinutes(homeTarget.iana, utcMs);
+  const currentDate = new Date(utcMs);
+  const currentUTCMinutes = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
+  
+  let targetUTCMinutes = sliderVal - offsetFromUTC;
+  scrubOffsetMinutes = targetUTCMinutes - currentUTCMinutes;
+  
+  renderClocks();
+}
+
+function resetToNow() {
+  isScrubbing = false;
+  scrubOffsetMinutes = 0;
+  syncSliderToNow();
+  renderClocks();
+}
+
+// ── DEBOUNCED SEARCH STREAMS ──
+function debounceSearch(val) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => fetchGlobalCities(val), 300);
+}
+
+async function fetchGlobalCities(query) {
+  const box = document.getElementById('suggestions');
+  const q = query.trim().toLowerCase();
+  
+  if (q.length < 2) { box.style.display = 'none'; activeSuggestionIndex = -1; return; }
+
+  try {
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
+    const data = await res.json();
+
+    if (!data.results || data.results.length === 0) {
+      box.style.display = 'none';
+      activeSuggestionIndex = -1;
+      return;
+    }
+
+    currentSuggestions = data.results
+      .filter(item => item.timezone)
+      .map(item => {
+        const regionToken = item.admin1 ? `${item.admin1}, ` : '';
+        return {
+          name: `${item.name}, ${regionToken}${item.country_code.toUpperCase()}`,
+          zone: item.timezone.split('/').pop().replace(/_/g, ' '),
+          iana: item.timezone
+        };
+      });
+
+    if (!currentSuggestions.length) { box.style.display = 'none'; return; }
+
+    box.innerHTML = currentSuggestions.map((c, idx) =>
+      `<div class="suggestion-item" id="sug-${idx}" onclick="addDynamicCity(${idx})">
+        <span>${c.name}</span>
+        <span class="tz-hint">${c.zone}</span>
+      </div>`
+    ).join('');
+    box.style.display = 'block';
+    activeSuggestionIndex = -1;
+
+  } catch (error) {
+    console.error("Geocoding connection network fault:", error);
+  }
+}
+
+function handleSearchKey(e) {
+  const box = document.getElementById('suggestions');
+  const items = box.querySelectorAll('.suggestion-item');
+  
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (activeSuggestionIndex < items.length - 1) {
+      activeSuggestionIndex++;
+      updateActiveSuggestionVisuals(items);
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (activeSuggestionIndex > 0) {
+      activeSuggestionIndex--;
+      updateActiveSuggestionVisuals(items);
+    }
+  } else if (e.key === 'Enter') {
+    if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
+      items[activeSuggestionIndex].click();
+    } else if (currentSuggestions.length > 0) {
+      addDynamicCity(0);
+    } else {
+      showToast("No matching global endpoints resolved.");
+    }
+  } else if (e.key === 'Escape') {
+    box.style.display = 'none';
+    activeSuggestionIndex = -1;
+  }
+}
+
+function updateActiveSuggestionVisuals(items) {
+  items.forEach((item, idx) => {
+    item.style.backgroundColor = (idx === activeSuggestionIndex) ? 'rgba(124, 109, 250, 0.15)' : '';
+  });
+}
+
+function addDynamicCity(index) {
+  const city = currentSuggestions[index];
+  if (city && !trackedCities.some(c => c.iana === city.iana && c.name === city.name)) {
+    trackedCities.push(city);
+    renderClocks();
+  }
+  document.getElementById('citySearch').value = '';
+  document.getElementById('suggestions').style.display = 'none';
+  activeSuggestionIndex = -1;
+}
+
+function removeCity(i) {
+  if (trackedCities[i].iana === homeCityIana && trackedCities.length > 1) {
+    homeCityIana = trackedCities[i === 0 ? 1 : 0].iana;
+  }
+  trackedCities.splice(i, 1);
+  updateSliderElement();
+  renderClocks();
+}
+
+// ── TOAST OVERLAYS ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display = 'none';
+});
+
+// ── INITIALIZE ENVIRONMENT ──
+(async () => {
+  const savedTheme = localStorage.getItem('zonesync-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  
+  const track = document.getElementById('toggleTrack');
+  const thumb = document.getElementById('toggleThumb');
+  const label = document.getElementById('themeLabel');
+  
+  if (savedTheme === 'light') {
+    track.classList.remove('on');
+    thumb.textContent = '☀️';
+    label.textContent = 'Light mode';
+  } else {
+    track.classList.add('on');
+    thumb.textContent = '🌙';
+    label.textContent = 'Dark mode';
+  }
+
+  await fetchOnlineTime();
+  syncSliderToNow();
+  renderClocks();
+  setInterval(() => {
+    if (!isScrubbing) syncSliderToNow();
+    renderClocks();
+  }, 1000);
+})();
+</script>
+</body>
+</html>
