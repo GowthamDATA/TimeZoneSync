@@ -26,11 +26,12 @@
       --surface: rgba(22, 22, 34, 0.65);
       --surface-hover: rgba(30, 30, 46, 0.85);
       --surface2: #161622;
-      --border: rgba(255, 255, 255, 0.08);
-      --border-hover: rgba(124, 109, 250, 0.4);
+      --border: rgba(255, 255, 255, 0.12);
+      --border-strong: rgba(255, 255, 255, 0.25);
+      --border-hover: rgba(124, 109, 250, 0.5);
       --text: #f0eff8;
-      --muted: #8e8da4;
-      --slider-track: #1c1c2b;
+      --muted: #a4a3bc;
+      --slider-track: #222235;
       --glass-glow: rgba(124, 109, 250, 0.05);
       --input-bg: rgba(255, 255, 255, 0.05);
     }
@@ -41,10 +42,11 @@
       --surface-hover: rgba(255, 255, 255, 0.9);
       --surface2: #eaeaea;
       --border: rgba(0, 0, 0, 0.08);
+      --border-strong: rgba(0, 0, 0, 0.15);
       --border-hover: rgba(124, 109, 250, 0.4);
       --text: #0f0f1a;
       --muted: #6e6e82;
-      --slider-track: #e2e2ec;
+      --slider-track: #dcdce6;
       --glass-glow: rgba(124, 109, 250, 0.01);
       --input-bg: rgba(0, 0, 0, 0.04);
     }
@@ -80,7 +82,7 @@
       margin: 0 auto;
     }
 
-    /* ── HEADER LAYOUT ── */
+    /* ── REDESIGNED UNIFIED COHESIVE HEADER LAYOUT ── */
     header {
       display: flex;
       justify-content: space-between;
@@ -148,14 +150,14 @@
       width: 44px; height: 22px;
       border-radius: 30px;
       background: var(--slider-track);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       position: relative;
       transition: var(--transition-smooth);
     }
 
     .toggle-track.on {
       background: rgba(var(--accent-rgb), 0.15);
-      border-color: rgba(var(--accent-rgb), 0.3);
+      border-color: rgba(var(--accent-rgb), 0.5);
     }
 
     .toggle-thumb {
@@ -184,7 +186,7 @@
       background: var(--surface);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       border-radius: 14px;
       padding: 14px 16px 14px 48px;
       font-size: 14px;
@@ -218,7 +220,7 @@
       top: calc(100% + 8px);
       left: 0; right: 0;
       background: var(--surface2);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       border-radius: 14px;
       overflow: hidden;
       z-index: 100;
@@ -240,82 +242,94 @@
     #suggestions .suggestion-item:hover { background: rgba(124, 109, 250, 0.08); }
     #suggestions .suggestion-item .tz-hint { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
 
-    /* ── TIME SYSTEM SCRUBBER TIMELINE CARD ── */
+    /* ── HIGH-CONTRAST TIMELINE SCRUBBER CARD ── */
     .timeline-card {
       background: var(--surface);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       border-radius: 24px;
       padding: 28px 32px;
       margin-bottom: 40px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.02);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
     }
 
     .timeline-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       flex-wrap: wrap;
       gap: 12px;
     }
 
+    /* Increased core time matrix font sizing dramatically */
     .timeline-label {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      color: var(--text);
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 500;
+      letter-spacing: 0.05em;
+      font-weight: 700;
+      background: rgba(255,255,255,0.04);
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    [data-theme="light"] .timeline-label {
+      background: rgba(0,0,0,0.03);
     }
 
     #sliderDisplay {
       font-family: 'Space Grotesk', sans-serif;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--accent);
-      background: rgba(124, 109, 250, 0.06);
-      padding: 4px 12px;
-      border-radius: 8px;
-      border: 1px solid rgba(124, 109, 250, 0.15);
+      background: rgba(124, 109, 250, 0.08);
+      padding: 6px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(124, 109, 250, 0.3);
     }
 
     .tick-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 12px;
-      padding: 0 4px;
+      margin-bottom: 14px;
+      padding: 0 6px;
     }
 
     .tick-row span {
       font-size: 11px;
-      color: var(--muted);
+      color: var(--text);
+      font-weight: 600;
       font-family: 'JetBrains Mono', monospace;
+      opacity: 0.8;
     }
 
     input[type="range"].time-slider {
       -webkit-appearance: none;
-      width: 100%; height: 6px;
-      border-radius: 4px;
+      width: 100%; height: 8px;
+      border-radius: 6px;
       background: var(--slider-track);
+      border: 1px solid var(--border-strong);
       outline: none;
       cursor: pointer;
     }
 
     input[type="range"].time-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 24px; height: 24px;
+      width: 26px; height: 26px;
       border-radius: 50%;
       background: var(--accent);
-      border: 4px solid var(--surface2);
-      box-shadow: 0 0 12px rgba(124, 109, 250, 0.4);
+      border: 4px solid var(--bg);
+      box-shadow: 0 0 16px rgba(124, 109, 250, 0.6);
       cursor: pointer;
       transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-      margin-top: -9px;
+      margin-top: -10px;
     }
 
-    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
 
     .timeline-bottom-controls {
       margin-top: 20px;
@@ -326,17 +340,18 @@
 
     .reset-btn button {
       background: transparent;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      padding: 8px 18px;
-      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      color: var(--text);
+      font-weight: 600;
+      padding: 10px 20px;
+      border-radius: 12px;
       font-size: 12px;
       font-family: 'JetBrains Mono', monospace;
       cursor: pointer;
       transition: var(--transition-smooth);
     }
 
-    .reset-btn button:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,109,250,0.02); }
+    .reset-btn button:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,109,250,0.04); }
 
     /* ── CLOCK DASHBOARD GRID ── */
     .clock-grid {
@@ -349,7 +364,7 @@
       background: var(--surface);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-strong);
       border-radius: 24px;
       padding: 28px;
       display: flex;
@@ -367,7 +382,7 @@
     }
 
     .clock-card.is-home {
-      border-color: rgba(124, 109, 250, 0.4);
+      border-color: rgba(124, 109, 250, 0.6);
       box-shadow: 0 8px 24px rgba(124, 109, 250, 0.08);
     }
 
@@ -385,30 +400,29 @@
       pointer-events: none;
     }
 
-    /* Target precise local lighting shifts with adaptive color boundaries */
     .clock-card.ambient-morning::after   { background: linear-gradient(135deg, #ff9d6c, #ffdb8b); opacity: 0.25; }
     .clock-card.ambient-afternoon::after { background: linear-gradient(135deg, #4facfe, #00f2fe); opacity: 0.22; }
     .clock-card.ambient-evening::after   { background: linear-gradient(135deg, #f857a6, #ff5858); opacity: 0.28; }
     .clock-card.ambient-night::after     { background: linear-gradient(135deg, #30197d, #ec38bc); opacity: 0.35; }
 
-    /* High contrast text support rules for distinct conditions */
+    /* High contrast adaptive layout systems */
     .clock-card.ambient-morning, .clock-card.ambient-afternoon {
       --text: #0f0f1a;
-      --muted: #555566;
-      --border: rgba(0, 0, 0, 0.08);
+      --muted: #4b4b5a;
+      --border: rgba(0, 0, 0, 0.12);
     }
     
     [data-theme="dark"] .clock-card.ambient-morning, [data-theme="dark"] .clock-card.ambient-afternoon {
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.92);
     }
     [data-theme="light"] .clock-card.ambient-morning, [data-theme="light"] .clock-card.ambient-afternoon {
-      background: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, 0.97);
     }
 
     .clock-card.ambient-evening, .clock-card.ambient-night {
       --text: #f0eff8;
       --muted: #a4a3bc;
-      --border: rgba(255, 255, 255, 0.1);
+      --border: rgba(255, 255, 255, 0.15);
     }
     
     [data-theme="dark"] .clock-card.ambient-evening, [data-theme="dark"] .clock-card.ambient-night {
@@ -453,11 +467,11 @@
 
     .date-badge {
       font-size: 11px;
-      font-weight: 500;
+      font-weight: 600;
       padding: 4px 10px;
       border-radius: 8px;
       font-family: 'JetBrains Mono', monospace;
-      background: rgba(124, 109, 250, 0.08);
+      background: rgba(124, 109, 250, 0.1);
       border: 1px solid var(--border);
       color: var(--text);
       z-index: 2;
@@ -470,7 +484,6 @@
       z-index: 2;
     }
 
-    /* ── REDEFINE REFINED TIMELINE TYPOGRAPHY SCALE ── */
     .input-time-engine {
       display: inline-flex;
       align-items: center;
@@ -497,7 +510,7 @@
     }
 
     .input-time-engine input:focus {
-      background: rgba(124, 109, 250, 0.12);
+      background: rgba(124, 109, 250, 0.15);
     }
 
     .divider-dots {
@@ -569,9 +582,9 @@
       background: transparent;
       border: none;
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      opacity: 0.5;
+      opacity: 0.6;
       padding: 4px 8px;
       border-radius: 6px;
       color: var(--text);
@@ -579,7 +592,7 @@
       transition: var(--transition-smooth);
     }
 
-    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; font-weight: 600; }
+    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; font-weight: 700; }
     .remove-btn { color: var(--red); }
 
     .clock-card:hover .home-btn,
@@ -654,7 +667,7 @@
 
   <div class="timeline-card">
     <div class="timeline-top">
-      <span class="timeline-label" id="scrubberLabel">⏱ Temporal Slider Engine</span>
+      <span class="timeline-label" id="scrubberLabel">⏱ Home Time Core Matrix</span>
       <span id="sliderDisplay">—</span>
     </div>
     <div class="tick-row">
@@ -789,7 +802,6 @@ function getFormattedCalendarDate(iana, utcMs) {
   }).format(new Date(effectiveMs));
 }
 
-// ── FIXED FORMATTER CONTROLLER ──
 function fmt2(n) { return String(n).padStart(2, '0'); }
 
 function getUTCOffsetStr(ianaZone) {
@@ -820,7 +832,6 @@ function getTimezoneOffsetMinutes(iana, baseMs) {
   return diff;
 }
 
-// ── CORE ENVIRONMENT CONFIGURATOR ──
 function getAtmosphericClass(hours) {
   if (hours >= 5 && hours < 12)  return { name: "ambient-morning", icon: "🌅" };
   if (hours >= 12 && hours < 17) return { name: "ambient-afternoon", icon: "☀️" };
@@ -911,7 +922,7 @@ function renderClocks() {
   }
 }
 
-// ── INTERACTION CHANNELS ──
+// ── TIME CONVERTER COMPUTATION CHANNELS ─────────
 function handleTimeInput(e, cityIndex, type) {
   if (e.key === 'Enter') { e.target.blur(); return; }
   if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab') {
@@ -952,13 +963,6 @@ function toggleAmPm(cityIndex) {
   renderClocks();
 }
 
-function setHomeBase(index) {
-  homeCityIana = trackedCities[index].iana;
-  updateSliderElement();
-  renderClocks();
-}
-
-// ── TIMELINE CONTROLLER ──
 function updateSliderElement() {
   if (baseUTCms === null) return;
   const utcMs = getCurrentUTCms();
