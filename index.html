@@ -187,4 +187,939 @@
       height: 24px;
       border-radius: 12px;
       background: var(--surface2);
-      border: 1px
+      border: 1px solid var(--border);
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .toggle-track.on {
+      background: rgba(124,109,250,0.2);
+      border-color: rgba(124,109,250,0.4);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 16px; height: 16px;
+      border-radius: 50%;
+      background: var(--muted);
+      transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s;
+      font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .toggle-track.on .toggle-thumb {
+      transform: translateX(20px);
+      background: var(--accent);
+    }
+
+    .search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .search-wrap input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 13px 16px 13px 44px;
+      font-size: 14px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+    }
+
+    .search-wrap input::placeholder { color: var(--muted); }
+
+    .search-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(124,109,250,0.12);
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      width: 16px; height: 16px;
+      pointer-events: none;
+    }
+
+    #suggestions {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+
+    #suggestions .suggestion-item {
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.15s;
+      color: var(--text);
+    }
+
+    #suggestions .suggestion-item:hover { background: rgba(124,109,250,0.1); }
+
+    #suggestions .suggestion-item .tz-hint {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    /* ── TIMELINE SCRUBBER ── */
+    .timeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      transition: background 0.3s, border-color 0.3s;
+    }
+
+    .timeline-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .timeline-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    #sliderDisplay {
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .tick-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding: 0 2px;
+    }
+
+    .tick-row span {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+    }
+
+    input[type="range"].time-slider {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--slider-track);
+      outline: none;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    input[type="range"].time-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 10px rgba(124,109,250,0.4);
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.3s;
+      margin-top: -8px;
+    }
+
+    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+    .reset-btn {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .reset-btn button {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .reset-btn button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── CLOCK GRID ── */
+    .clock-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .clock-card {
+      background-color: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: border-color 0.3s, transform 0.2s, background-color 0.4s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .clock-card.is-home {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(124,109,250,0.15);
+    }
+
+    .clock-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 90% 10%, var(--card-glow), transparent 60%);
+      pointer-events: none;
+    }
+
+    .clock-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .city-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .tz-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      margin-top: 3px;
+    }
+
+    .badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      flex-shrink: 0;
+    }
+
+    .badge-day { background: #fef3c7; color: #92610a; }
+    .badge-night { background: #1a1a2e; color: #a9a6d8; border: 1px solid #2e2e50; }
+
+    [data-theme="light"] .badge-night {
+      background: #2a2a50;
+      color: #c0bdee;
+    }
+
+    .time-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .time-input-container {
+      display: inline-flex;
+      align-items: baseline;
+      font-family: 'Nunito', sans-serif;
+      font-size: 44px;
+      font-weight: 900;
+      color: var(--text);
+    }
+
+    .time-input-container input {
+      background: transparent;
+      border: none;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      color: inherit;
+      width: 58px;
+      padding: 0;
+      text-align: center;
+      outline: none;
+      border-radius: 6px;
+      transition: background-color 0.2s;
+    }
+
+    .time-input-container input:focus {
+      background-color: rgba(124,109,250,0.15);
+    }
+
+    .time-separator {
+      animation: blink 2s infinite;
+      user-select: none;
+      padding: 0 2px;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .time-seconds {
+      font-family: 'Nunito', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      margin-left: 6px;
+    }
+
+    .time-ampm {
+      font-family: 'Nunito', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      padding: 2px 4px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      margin-left: 4px;
+    }
+
+    .time-ampm:hover {
+      background-color: rgba(124,109,250,0.15);
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .day-pill {
+      background: var(--surface2);
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .day-pill.ahead { color: var(--accent2); border: 1px solid rgba(240,160,90,0.25); }
+    .day-pill.behind { color: var(--red); border: 1px solid rgba(240,90,90,0.2); }
+
+    .action-icons {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .home-btn, .remove-btn {
+      background: none;
+      border: none;
+      font-size: 12px;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s, color 0.2s;
+      padding: 2px 6px;
+    }
+
+    .home-btn { color: var(--muted); }
+    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; }
+    .remove-btn { color: var(--red); }
+
+    .clock-card:hover .home-btn,
+    .clock-card:hover .remove-btn { opacity: 1; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--surface2);
+      border: 1px solid var(--red);
+      color: var(--red);
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 999;
+      white-space: nowrap;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 24px 16px 60px; }
+      header { flex-direction: column; }
+      .header-right { align-items: flex-start; width: 100%; }
+      .search-wrap { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="brand">
+      <h1>
+        <span class="logo-icon">🌐</span>
+        <span class="brand-name">Zone<span class="brand-dot">Sync</span></span>
+        <span class="pulse-dot"></span>
+      </h1>
+      <p class="brand-sub">// live world clock &amp; timezone converter</p>
+      <div id="timeSourceBadge">
+        <span class="indicator"></span>
+        <span id="badgeText">fetching online time…</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="theme-toggle" onclick="toggleTheme()" title="Switch theme">
+        <span class="theme-toggle-label" id="themeLabel">Dark mode</span>
+        <div class="toggle-track on" id="toggleTrack">
+          <div class="toggle-thumb" id="toggleThumb">🌙</div>
+        </div>
+      </div>
+
+      <div class="search-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" id="citySearch" placeholder="Search any city, state, or country..."
+          autocomplete="off" oninput="debounceSearch(this.value)" onkeydown="handleSearchKey(event)" />
+        <div id="suggestions"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="timeline-card">
+    <div class="timeline-top">
+      <span class="timeline-label" id="scrubberLabel">⏱ Time Scrubber — drag to explore</span>
+      <span id="sliderDisplay">—</span>
+    </div>
+    <div class="tick-row">
+      <span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11:59 PM</span>
+    </div>
+    <input type="range" id="masterSlider" class="time-slider" min="0" max="1439" value="0"
+      oninput="onSliderChange()" />
+    <div class="reset-btn">
+      <button onclick="resetToNow()">↺ Reset to current time</button>
+    </div>
+  </div>
+
+  <div class="clock-grid" id="clockGrid"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── THEME TRIGGER CONTROL ──────────────────────
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  const track = document.getElementById('toggleTrack');
+  const thumb = document.getElementById('toggleThumb');
+  const label = document.getElementById('themeLabel');
+  if (isDark) {
+    track.classList.remove('on');
+    thumb.textContent = '☀️';
+    label.textContent = 'Light mode';
+    localStorage.setItem('zonesync-theme', 'light');
+  } else {
+    track.classList.add('on');
+    thumb.textContent = '🌙';
+    label.textContent = 'Dark mode';
+    localStorage.setItem('zonesync-theme', 'dark');
+  }
+  renderClocks();
+}
+
+// ── STATE MANAGEMENT ──────────────────────────
+let trackedCities = [
+  { name: "Bengaluru, Karnataka, IN", zone: "Kolkata",     iana: "Asia/Kolkata" },
+  { name: "London, England, GB",      zone: "London",      iana: "Europe/London" },
+  { name: "New York, NY, US",         zone: "New York",    iana: "America/New_York" },
+  { name: "Los Angeles, CA, US",      zone: "Los Angeles", iana: "America/Los_Angeles" },
+  { name: "Tokyo, Tokyo, JP",         zone: "Tokyo",       iana: "Asia/Tokyo" }
+];
+
+let homeCityIana = "Asia/Kolkata"; 
+let baseUTCms = null;
+let baseLocalMs = null;
+let usingOnlineTime = false;
+let scrubOffsetMinutes = 0;
+let isScrubbing = false;
+let activeSuggestionIndex = -1; 
+let currentSuggestions = [];    
+let debounceTimer;              
+
+// ── ONLINE TIME FETCH ──────────────────────────
+async function fetchOnlineTime() {
+  const badge = document.getElementById('timeSourceBadge');
+  const badgeText = document.getElementById('badgeText');
+
+  const apis = [
+    { url: 'https://worldtimeapi.org/api/timezone/UTC', parse: d => new Date(d.utc_datetime).getTime() },
+    { url: 'https://timeapi.io/api/Time/current/zone?timeZone=UTC', parse: d => new Date(d.dateTime + 'Z').getTime() },
+  ];
+
+  for (const api of apis) {
+    try {
+      const t0 = performance.now();
+      const res = await fetch(api.url);
+      const json = await res.json();
+      const t1 = performance.now();
+      const rtt = (t1 - t0) / 2;
+      baseUTCms = api.parse(json) + rtt;
+      baseLocalMs = performance.now();
+      usingOnlineTime = true;
+      badge.classList.add('live');
+      badgeText.textContent = 'online time · worldtimeapi.org';
+      return;
+    } catch (e) {}
+  }
+
+  baseUTCms = Date.now();
+  baseLocalMs = performance.now();
+  usingOnlineTime = false;
+  badge.classList.remove('live');
+  badgeText.textContent = 'fallback: local machine time';
+}
+
+function getCurrentUTCms() {
+  if (baseUTCms === null) return Date.now();
+  return baseUTCms + (performance.now() - baseLocalMs);
+}
+
+function getCityMinutes(city, utcMs) {
+  const date = new Date(utcMs + scrubOffsetMinutes * 60_000);
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: city.iana,
+    hour: 'numeric', minute: 'numeric', second: 'numeric',
+    hour12: false, day: 'numeric'
+  }).formatToParts(date);
+  const get = type => parseInt(parts.find(p => p.type === type)?.value || '0');
+  let h = get('hour'); const m = get('minute'); const s = get('second');
+  if (h === 24) h = 0;
+  return { hours: h, minutes: m, seconds: s };
+}
+
+function getDayOffset(city, utcMs) {
+  const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
+  
+  const getDayNum = (tz) => {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, day: 'numeric' }).formatToParts(new Date(effectiveMs));
+    return parseInt(parts.find(p => p.type === 'day')?.value || '0', 10);
+  };
+
+  const targetDay = getDayNum(city.iana);
+  const utcDay = getDayNum('UTC');
+  
+  let diff = targetDay - utcDay;
+  if (diff > 1) diff = -1;
+  if (diff < -1) diff = 1;
+  
+  return diff;
+}
+
+function getFormattedDate(iana, utcMs) {
+  const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: iana,
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
+  }).format(new Date(effectiveMs));
+}
+
+function fmt2(n) { return String(n).padStart(2, '0'); }
+
+function getUTCOffsetStr(ianaZone) {
+  try {
+    const p = new Intl.DateTimeFormat('en', { timeZone: ianaZone, timeZoneName: 'shortOffset' }).formatToParts(new Date());
+    return (p.find(x => x.type === 'timeZoneName')?.value || '').replace('GMT', 'UTC');
+  } catch { return ''; }
+}
+
+// ── COLOR GRADIENT CROSS-FADER GENERATOR ────────────────
+function getCardBackgroundStyles(hours, minutes) {
+  const decimalTime = hours + (minutes / 60);
+  let ratio = 0;
+  
+  if (decimalTime >= 6 && decimalTime < 12) {
+    ratio = (decimalTime - 6) / 6; 
+    return `linear-gradient(135deg, var(--night-bg) 0%, var(--day-bg) ${ratio * 100}%)`;
+  } else if (decimalTime >= 12 && decimalTime < 18) {
+    ratio = (decimalTime - 12) / 6; 
+    return `linear-gradient(135deg, var(--day-bg) 0%, var(--night-bg) ${ratio * 100}%)`;
+  } else {
+    return `var(--night-bg)`; 
+  }
+}
+
+// ── RENDER ENGINE ──────────────────────────────
+function renderClocks() {
+  if (baseUTCms === null) return;
+  const utcMs = getCurrentUTCms();
+  const grid = document.getElementById('clockGrid');
+  const sliderDisplay = document.getElementById('sliderDisplay');
+  const labelText = document.getElementById('scrubberLabel');
+
+  const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
+  if (homeTarget) {
+    const homeParts = getCityMinutes(homeTarget, utcMs);
+    const homeAmPm = homeParts.hours >= 12 ? 'PM' : 'AM';
+    const homeH12 = (homeParts.hours % 12) || 12;
+    labelText.textContent = `⏱ Home Time Base — (${homeTarget.name.split(',')[0]})`;
+    
+    sliderDisplay.textContent = isScrubbing
+      ? `Scrubbing Target: ${homeH12}:${fmt2(homeParts.minutes)} ${homeAmPm}`
+      : `Live — ${homeH12}:${fmt2(homeParts.minutes)} ${homeAmPm}`;
+  }
+
+  const activeId = document.activeElement ? document.activeElement.id : null;
+  const selectionStart = document.activeElement ? document.activeElement.selectionStart : null;
+
+  grid.innerHTML = '';
+  trackedCities.forEach((city, i) => {
+    const { hours, minutes, seconds } = getCityMinutes(city, utcMs);
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const h12 = (hours % 12) || 12;
+    const isDay = hours >= 6 && hours < 18;
+    const dayOff = getDayOffset(city, utcMs);
+    const utcStr = getUTCOffsetStr(city.iana);
+    const dateLabel = getFormattedDate(city.iana, utcMs);
+    const isHome = city.iana === homeCityIana;
+
+    const backgroundStyle = getCardBackgroundStyles(hours, minutes);
+
+    let dayPillHtml = `<span class="day-pill">Same day</span>`;
+    if (dayOff > 0) dayPillHtml = `<span class="day-pill ahead">+${dayOff} day</span>`;
+    if (dayOff < 0) dayPillHtml = `<span class="day-pill behind">${dayOff} day</span>`;
+
+    grid.innerHTML += `
+      <div class="clock-card ${isHome ? 'is-home' : ''}" style="background: ${backgroundStyle}">
+        <div class="card-header">
+          <div>
+            <div class="city-name" title="${city.name}">${city.name.split(',')[0]}</div>
+            <div class="tz-label">${city.zone} · ${utcStr}</div>
+          </div>
+          <span class="badge ${isDay ? 'badge-day' : 'badge-night'}">${dateLabel}</span>
+        </div>
+        <div class="time-row">
+          <div class="time-input-container">
+            <input type="text" maxlength="2" id="h-${i}" value="${fmt2(h12)}" 
+              onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'h')" onblur="commitTimeInput(${i})">
+            <span class="time-separator">:</span>
+            <input type="text" maxlength="2" id="m-${i}" value="${fmt2(minutes)}" 
+              onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'm')" onblur="commitTimeInput(${i})">
+          </div>
+          <span class="time-seconds">${fmt2(seconds)}</span>
+          <span class="time-ampm" onclick="toggleAmPm(${i})">${ampm}</span>
+        </div>
+        <div class="card-footer">
+          ${dayPillHtml}
+          <div class="action-icons">
+            <button class="home-btn" title="Set as Home Reference Base" onclick="setHomeBase(${i})">⚓ Home</button>
+            <button class="remove-btn" onclick="removeCity(${i})">✕ Remove</button>
+          </div>
+        </div>
+      </div>`;
+  });
+
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el) {
+      el.focus();
+      if (selectionStart !== null) el.setSelectionRange(selectionStart, selectionStart);
+    }
+  }
+}
+
+// ── TIME INTERACTION MECHANICS ────────────────
+function handleTimeInput(e, cityIndex, type) {
+  if (e.key === 'Enter') {
+    e.target.blur();
+    return;
+  }
+  if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab') {
+    if(!e.metaKey && !e.ctrlKey) e.preventDefault();
+  }
+}
+
+function commitTimeInput(cityIndex) {
+  const hInput = document.getElementById(`h-${cityIndex}`);
+  const mInput = document.getElementById(`m-${cityIndex}`);
+  if (!hInput || !mInput) return;
+
+  const hVal = parseInt(hInput.value) || 12;
+  const mVal = parseInt(mInput.value) || 0;
+  
+  const city = trackedCities[cityIndex];
+  const utcMs = getCurrentUTCms();
+  const currentParts = getCityMinutes(city, utcMs);
+  const currentAmPm = currentParts.hours >= 12 ? 'PM' : 'AM';
+  
+  let targetHours = hVal % 12;
+  if (currentAmPm === 'PM') targetHours += 12;
+  
+  isScrubbing = true;
+  const currentCityMinutes = currentParts.hours * 60 + currentParts.minutes;
+  const targetCityMinutes = targetHours * 60 + mVal;
+  
+  scrubOffsetMinutes += (targetCityMinutes - currentCityMinutes);
+  
+  updateSliderElement();
+  renderClocks();
+}
+
+// Fix toggleAmPm function scope error
+function toggleAmPm(cityIndex) {
+  isScrubbing = true;
+  const { hours } = getCityMinutes(trackedCities[cityIndex], getCurrentUTCms());
+  if (hours >= 12) {
+    scrubOffsetMinutes -= 720; 
+  } else {
+    scrubOffsetMinutes += 720; 
+  }
+  updateSliderElement();
+  renderClocks();
+}
+
+function setHomeBase(index) {
+  homeCityIana = trackedCities[index].iana;
+  renderClocks();
+}
+
+function updateSliderElement() {
+  if (baseUTCms === null) return;
+  const d = new Date(getCurrentUTCms() + scrubOffsetMinutes * 60_000);
+  document.getElementById('masterSlider').value = d.getUTCHours() * 60 + d.getUTCMinutes();
+}
+
+// ── SLIDER INTERFACE CONTROLS ──
+function syncSliderToNow() {
+  if (baseUTCms === null) return;
+  const d = new Date(getCurrentUTCms());
+  document.getElementById('masterSlider').value = d.getUTCHours() * 60 + d.getUTCMinutes();
+}
+
+function onSliderChange() {
+  if (baseUTCms === null) return;
+  isScrubbing = true;
+  const sliderVal = parseInt(document.getElementById('masterSlider').value);
+  const d = new Date(getCurrentUTCms());
+  const nowUTC = d.getUTCHours() * 60 + d.getUTCMinutes();
+  scrubOffsetMinutes = sliderVal - nowUTC;
+  renderClocks();
+}
+
+function resetToNow() {
+  isScrubbing = false;
+  scrubOffsetMinutes = 0;
+  syncSliderToNow();
+  renderClocks();
+}
+
+// ── DYNAMIC GEOCODING SEARCH SERVICE ──
+function debounceSearch(val) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => fetchGlobalCities(val), 300);
+}
+
+async function fetchGlobalCities(query) {
+  const box = document.getElementById('suggestions');
+  const q = query.trim().toLowerCase();
+  
+  if (q.length < 2) { box.style.display = 'none'; activeSuggestionIndex = -1; return; }
+
+  try {
+    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
+    const data = await res.json();
+
+    if (!data.results || data.results.length === 0) {
+      box.style.display = 'none';
+      activeSuggestionIndex = -1;
+      return;
+    }
+
+    currentSuggestions = data.results
+      .filter(item => item.timezone)
+      .map(item => {
+        const regionToken = item.admin1 ? `${item.admin1}, ` : '';
+        return {
+          name: `${item.name}, ${regionToken}${item.country_code.toUpperCase()}`,
+          zone: item.timezone.split('/').pop().replace(/_/g, ' '),
+          iana: item.timezone
+        };
+      });
+
+    if (!currentSuggestions.length) { box.style.display = 'none'; return; }
+
+    box.innerHTML = currentSuggestions.map((c, idx) =>
+      `<div class="suggestion-item" id="sug-${idx}" onclick="addDynamicCity(${idx})">
+        <span>${c.name}</span>
+        <span class="tz-hint">${c.zone}</span>
+      </div>`
+    ).join('');
+    box.style.display = 'block';
+    activeSuggestionIndex = -1;
+
+  } catch (error) {
+    console.error("Geocoding lookup error:", error);
+  }
+}
+
+function handleSearchKey(e) {
+  const box = document.getElementById('suggestions');
+  const items = box.querySelectorAll('.suggestion-item');
+  
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (activeSuggestionIndex < items.length - 1) {
+      activeSuggestionIndex++;
+      updateActiveSuggestionVisuals(items);
+    }
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (activeSuggestionIndex > 0) {
+      activeSuggestionIndex--;
+      updateActiveSuggestionVisuals(items);
+    }
+  } else if (e.key === 'Enter') {
+    if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
+      items[activeSuggestionIndex].click();
+    } else if (currentSuggestions.length > 0) {
+      addDynamicCity(0);
+    } else {
+      showToast(`No locations found matching search parameters.`);
+    }
+  } else if (e.key === 'Escape') {
+    box.style.display = 'none';
+    activeSuggestionIndex = -1;
+  }
+}
+
+function updateActiveSuggestionVisuals(items) {
+  items.forEach((item, idx) => {
+    if (idx === activeSuggestionIndex) {
+      item.style.backgroundColor = 'rgba(124, 109, 250, 0.15)';
+    } else {
+      item.style.backgroundColor = '';
+    }
+  });
+}
+
+function addDynamicCity(index) {
+  const city = currentSuggestions[index];
+  if (city && !trackedCities.some(c => c.iana === city.iana && c.name === city.name)) {
+    trackedCities.push(city);
+    renderClocks();
+  }
+  document.getElementById('citySearch').value = '';
+  document.getElementById('suggestions').style.display = 'none';
+  activeSuggestionIndex = -1;
+}
+
+function removeCity(i) {
+  if (trackedCities[i].iana === homeCityIana && trackedCities.length > 1) {
+    homeCityIana = trackedCities[i === 0 ? 1 : 0].iana;
+  }
+  trackedCities.splice(i, 1);
+  renderClocks();
+}
+
+// ── NOTIFICATIONS LAYER ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display = 'none';
+});
+
+// ── INITIALIZATION ENVIRONMENT SEED ──
+(async () => {
+  const savedTheme = localStorage.getItem('zonesync-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  
+  const track = document.getElementById('toggleTrack');
+  const thumb = document.getElementById('toggleThumb');
+  const label = document.getElementById('themeLabel');
+  
+  if (savedTheme === 'light') {
+    track.classList.remove('on');
+    thumb.textContent = '☀️';
+    label.textContent = 'Light mode';
+  } else {
+    track.classList.add('on');
+    thumb.textContent = '🌙';
+    label.textContent = 'Dark mode';
+  }
+
+  await fetchOnlineTime();
+  syncSliderToNow();
+  renderClocks();
+  setInterval(() => {
+    if (!isScrubbing) syncSliderToNow();
+    renderClocks();
+  }, 1000);
+  setInterval(fetchOnlineTime, 10 * 60 * 1000);
+})();
+</script>
+</body>
+</html>
