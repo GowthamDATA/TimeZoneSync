@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ZoneSync — Premium World Clock & Timezone Matrix</title>
-  <meta name="description" content="ZoneSync: Free live world clock showing current time in every timezone. Compare cities, convert time zones, and plan across the globe in real time." />
+  <meta name="description" content="ZoneSync: Live world clock showing current time in every timezone. Compare cities, convert time zones, and plan across the globe in real time." />
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,7 +24,6 @@
     [data-theme="dark"] {
       --bg: #09090e;
       --surface: rgba(18, 18, 29, 0.6);
-      --surface-hover: rgba(26, 26, 41, 0.75);
       --surface2: rgba(30, 30, 46, 0.5);
       --border: rgba(255, 255, 255, 0.08);
       --border-strong: rgba(255, 255, 255, 0.18);
@@ -39,7 +38,6 @@
     [data-theme="light"] {
       --bg: #f3f3f8;
       --surface: rgba(255, 255, 255, 0.7);
-      --surface-hover: rgba(255, 255, 255, 0.85);
       --surface2: rgba(230, 230, 240, 0.5);
       --border: rgba(0, 0, 0, 0.06);
       --border-strong: rgba(0, 0, 0, 0.14);
@@ -52,627 +50,129 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      min-height: 100vh;
-      padding: 40px 24px 80px;
-      transition: background 0.5s ease, color 0.5s ease;
+    
+    body { 
+      background: var(--bg); 
+      color: var(--text); 
+      font-family: 'Plus Jakarta Sans', sans-serif; 
+      min-height: 100vh; 
+      padding: 40px 24px 80px; 
+      transition: background 0.5s ease; 
+      position: relative; 
       overflow-x: hidden;
-      position: relative;
     }
 
-    #bgCanvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      pointer-events: auto;
+    #bgCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: auto; }
+    
+    .grid-overlay { 
+      position: fixed; inset: 0; z-index: 1; 
+      background-image: radial-gradient(var(--bg-dots) 1.5px, transparent 1.5px); 
+      background-size: 40px 40px; 
+      pointer-events: none; 
     }
+    
+    .container { position: relative; z-index: 2; max-width: 1200px; margin: 0 auto; }
 
-    .grid-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      background-image: 
-        radial-gradient(var(--bg-dots) 1.5px, transparent 1.5px), 
-        linear-gradient(to right, var(--bg-dots) 1px, transparent 1px), 
-        linear-gradient(to bottom, var(--bg-dots) 1px, transparent 1px);
-      background-size: 40px 40px, 40px 40px, 40px 40px;
-      pointer-events: none;
-    }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 24px; margin-bottom: 40px; flex-wrap: wrap; }
+    .brand h1 { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; display: flex; align-items: center; gap: 12px; }
+    .brand-dot { color: var(--accent); }
 
-    .container {
-      position: relative;
-      z-index: 2;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 24px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-
-    .brand h1 {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      line-height: 1;
-    }
-
-    .brand h1 .logo-icon { display: inline-block; transition: transform 0.3s ease; }
-    .brand:hover h1 .logo-icon { transform: scale(1.1) rotate(15deg); }
-    .brand h1 .brand-dot { color: var(--accent); }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
+    .header-right { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
 
     .theme-toggle {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      user-select: none;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 12px 16px;
-      border-radius: 14px;
-      height: 48px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      transition: var(--transition-smooth);
+      display: inline-flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;
+      background: var(--surface); border: 1px solid var(--border); padding: 12px 16px; border-radius: 14px;
+      height: 48px; backdrop-filter: blur(10px); transition: var(--transition-smooth);
     }
+    .theme-toggle:hover { border-color: var(--accent); box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.1); }
+    .theme-toggle-label { font-size: 11px; font-family: 'JetBrains Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
-    .theme-toggle:hover {
-      border-color: var(--accent);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.1);
-    }
+    .toggle-track { width: 44px; height: 22px; border-radius: 30px; background: var(--slider-track); border: 1px solid var(--border-strong); position: relative; transition: var(--transition-smooth); }
+    .toggle-track.on { background: rgba(var(--accent-rgb), 0.15); border-color: rgba(var(--accent-rgb), 0.3); }
+    .toggle-thumb { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--muted); transition: transform 0.3s, background 0.25s; }
+    .toggle-track.on .toggle-thumb { transform: translateX(22px); background: var(--accent); }
 
-    .theme-toggle-label {
-      font-size: 11px;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .toggle-track {
-      width: 44px; height: 22px;
-      border-radius: 30px;
-      background: var(--slider-track);
-      border: 1px solid var(--border-strong);
-      position: relative;
-      transition: var(--transition-smooth);
-    }
-
-    .toggle-track.on {
-      background: rgba(var(--accent-rgb), 0.15);
-      border-color: rgba(var(--accent-rgb), 0.3);
-    }
-
-    .toggle-thumb {
-      position: absolute;
-      top: 2px; left: 2px;
-      width: 16px; height: 16px;
-      border-radius: 50%;
-      background: var(--muted);
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.25s;
-      font-size: 10px;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    .toggle-track.on .toggle-thumb {
-      transform: translateX(22px);
-      background: var(--accent);
-    }
-
-    .search-wrap {
-      position: relative;
-      width: 360px;
-    }
-
-    .search-wrap input {
-      width: 100%;
-      background: var(--surface);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid var(--border-strong);
-      border-radius: 14px;
-      padding: 14px 16px 14px 48px;
-      font-size: 14px;
-      color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      outline: none;
-      height: 48px;
-      transition: var(--transition-smooth);
-    }
-
-    .search-wrap input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 4px rgba(124, 109, 250, 0.12);
-      background: var(--surface-hover);
-    }
-
-    .search-wrap svg {
-      position: absolute;
-      left: 16px; top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      width: 18px; height: 18px;
-      pointer-events: none;
-      transition: var(--transition-smooth);
-    }
-
+    .search-wrap { position: relative; width: 360px; }
+    .search-wrap input { width: 100%; background: var(--surface); backdrop-filter: blur(10px); border: 1px solid var(--border-strong); border-radius: 14px; padding: 14px 16px 14px 48px; font-size: 14px; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; outline: none; height: 48px; transition: var(--transition-smooth); }
+    .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(124, 109, 250, 0.12); background: var(--surface-hover); }
+    .search-wrap svg { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--muted); width: 18px; height: 18px; pointer-events: none; }
     .search-wrap input:focus + svg { color: var(--accent); }
 
-    #suggestions {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 0; right: 0;
-      background: var(--surface2);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid var(--border-strong);
-      border-radius: 14px;
-      overflow: hidden;
-      z-index: 100;
-      display: none;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
-    }
+    #suggestions { position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: var(--surface2); backdrop-filter: blur(12px); border: 1px solid var(--border-strong); border-radius: 14px; overflow: hidden; z-index: 100; display: none; box-shadow: 0 12px 32px rgba(0,0,0,0.25); }
+    .suggestion-item { padding: 12px 18px; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text); }
+    .suggestion-item:hover { background: rgba(124, 109, 250, 0.08); }
+    .suggestion-item .tz-hint { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
 
-    #suggestions .suggestion-item {
-      padding: 12px 18px;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: background 0.2s ease;
-      color: var(--text);
-    }
+    /* Timeline Section */
+    .timeline-card { background: var(--surface); backdrop-filter: blur(16px); border: 1px solid var(--border-strong); border-radius: 24px; padding: 28px 32px; margin-bottom: 40px; }
+    .timeline-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .timeline-label { font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; background: rgba(124,109,250,0.08); padding: 6px 14px; border-radius: 10px; color: var(--accent); }
+    #sliderDisplay { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600; }
+    .tick-row { display: flex; justify-content: space-between; margin-bottom: 14px; padding: 0 6px; font-size: 11px; font-family: 'JetBrains Mono', monospace; opacity: 0.8; }
+    
+    input[type="range"].time-slider { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 6px; background: var(--slider-track); border: 1px solid var(--border-strong); outline: none; cursor: pointer; }
+    input[type="range"].time-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); border: 4px solid var(--bg); box-shadow: 0 0 16px rgba(124, 109, 250, 0.6); cursor: pointer; }
 
-    #suggestions .suggestion-item:hover { background: rgba(124, 109, 250, 0.08); }
-    #suggestions .suggestion-item .tz-hint { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-
-    /* ── TIME SYSTEM SCRUBBER TIMELINE CARD ── */
-    .timeline-card {
-      background: var(--surface);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--border-strong);
-      border-radius: 24px;
-      padding: 28px 32px;
-      margin-bottom: 40px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-      transition: var(--transition-smooth);
-    }
-
-    .timeline-card:hover {
-      border-color: rgba(var(--accent-rgb), 0.2);
-    }
-
-    .timeline-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .timeline-label {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 15px;
-      color: var(--text);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-weight: 700;
-      background: rgba(255,255,255,0.04);
-      padding: 6px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-    }
-
-    [data-theme="light"] .timeline-label { background: rgba(0,0,0,0.03); }
-
-    #sliderDisplay {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--accent);
-      background: rgba(124, 109, 250, 0.08);
-      padding: 6px 16px;
-      border-radius: 10px;
-      border: 1px solid rgba(124, 109, 250, 0.3);
-    }
-
-    .tick-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 14px;
-      padding: 0 6px;
-    }
-
-    .tick-row span {
-      font-size: 11px;
-      color: var(--text);
-      font-weight: 600;
-      font-family: 'JetBrains Mono', monospace;
-      opacity: 0.8;
-    }
-
-    input[type="range"].time-slider {
-      -webkit-appearance: none;
-      width: 100%; height: 8px;
-      border-radius: 4px;
-      background: var(--slider-track);
-      border: 1px solid var(--border-strong);
-      outline: none;
-      cursor: pointer;
-    }
-
-    input[type="range"].time-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 24px; height: 24px;
-      border-radius: 50%;
-      background: var(--accent);
-      border: 4px solid var(--surface2);
-      box-shadow: 0 0 16px rgba(124, 109, 250, 0.6);
-      cursor: pointer;
-      transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
-      margin-top: -10px;
-    }
-
-    input[type="range"].time-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
-
-    .timeline-bottom-controls {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
-
-    .date-nav-matrix {
-      display: flex;
-      align-items: center;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      padding: 4px;
-      border-radius: 12px;
-      gap: 2px;
-    }
-
-    .date-nav-matrix .date-step-btn {
-      background: transparent;
-      border: none;
-      color: var(--text);
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: var(--transition-smooth);
-    }
-
-    .date-nav-matrix .date-step-btn:hover { background: rgba(124, 109, 250, 0.1); color: var(--accent); }
-    .date-nav-matrix .date-step-btn.is-active { background: var(--accent); color: #fff; }
-
-    .utility-actions {
-      display: flex;
-      gap: 10px;
-    }
-
-    .utility-btn {
-      background: transparent;
-      border: 1px solid var(--border-strong);
-      color: var(--text);
-      font-weight: 600;
-      padding: 10px 20px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-family: 'JetBrains Mono', monospace;
-      cursor: pointer;
-      transition: var(--transition-smooth);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
+    /* Utility Controls */
+    .timeline-bottom-controls { margin-top: 24px; display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 16px; }
+    
+    .action-group { display: flex; gap: 12px; }
+    .utility-btn { background: transparent; border: 1px solid var(--border-strong); color: var(--text); padding: 8px 18px; border-radius: 10px; font-size: 12px; font-family: 'JetBrains Mono', monospace; cursor: pointer; transition: var(--transition-smooth); display: flex; align-items: center; gap: 6px; }
     .utility-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,109,250,0.04); }
 
-    /* ── CLOCK DASHBOARD GRID ── */
-    .clock-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 24px;
-    }
-
-    .clock-card {
-      background: var(--surface);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--border-strong);
-      border-radius: 24px;
-      padding: 28px;
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      transition: var(--transition-smooth);
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
-      cursor: pointer;
-    }
-
-    .clock-card:hover {
-      transform: translateY(-6px) scale(1.01);
-      border-color: var(--border-hover);
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
-    }
-
-    .clock-card.is-home {
-      border-color: rgba(124, 109, 250, 0.6);
-      box-shadow: 0 8px 32px rgba(124, 109, 250, 0.1);
-    }
-
-    .clock-card::after {
-      content: '';
-      position: absolute;
-      width: 260px; height: 260px;
-      top: -100px; right: -100px;
-      border-radius: 50%;
-      z-index: 1;
-      filter: blur(65px);
-      opacity: 0;
-      pointer-events: none;
-      animation: morphLiquid 10s ease-in-out infinite alternate;
-      transition: background 0.6s ease, opacity 0.6s ease;
-    }
-
-    @keyframes morphLiquid {
-      0% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; transform: translate(0, 0) scale(1); }
-      100% { border-radius: 70% 30% 52% 48% / 60% 40% 60% 40%; transform: translate(-20px, 20px) scale(1.15); }
-    }
-
+    /* Cards */
+    .clock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px; }
+    .clock-card { background: var(--surface); backdrop-filter: blur(20px); border: 1px solid var(--border-strong); border-radius: 24px; padding: 28px; transition: var(--transition-smooth); position: relative; overflow: hidden; cursor: pointer; }
+    .clock-card:hover { transform: translateY(-4px); border-color: var(--border-hover); }
+    .clock-card.is-home { border-color: rgba(124, 109, 250, 0.6); box-shadow: 0 8px 32px rgba(124, 109, 250, 0.1); }
+    
+    .clock-card::after { content: ''; position: absolute; width: 260px; height: 260px; top: -100px; right: -100px; border-radius: 50%; z-index: 1; filter: blur(65px); opacity: 0; pointer-events: none; transition: background 0.6s ease, opacity 0.6s ease; }
     .clock-card.ambient-morning::after   { background: linear-gradient(135deg, #ff9d6c, #ffdb8b); opacity: 0.25; }
     .clock-card.ambient-afternoon::after { background: linear-gradient(135deg, #4facfe, #00f2fe); opacity: 0.22; }
     .clock-card.ambient-evening::after   { background: linear-gradient(135deg, #f857a6, #ff5858); opacity: 0.28; }
     .clock-card.ambient-night::after     { background: linear-gradient(135deg, #30197d, #ec38bc); opacity: 0.35; }
 
-    .clock-card.ambient-morning, .clock-card.ambient-afternoon {
-      --text: #0f0f1a;
-      --muted: #4b4b5a;
-      --border: rgba(0, 0, 0, 0.12);
-    }
-    
-    [data-theme="dark"] .clock-card.ambient-morning, [data-theme="dark"] .clock-card.ambient-afternoon { background: rgba(255, 255, 255, 0.92); }
-    [data-theme="light"] .clock-card.ambient-morning, [data-theme="light"] .clock-card.ambient-afternoon { background: rgba(255, 255, 255, 0.97); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; z-index: 2; position: relative; }
+    .city-identity { display: flex; align-items: center; gap: 10px; max-width: 70%; }
+    .status-orb { font-size: 22px; line-height: 1; }
+    .city-name { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tz-info { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+    .date-badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; background: rgba(124, 109, 250, 0.1); border: 1px solid var(--border); color: var(--text); z-index: 2; position: relative;}
 
-    .clock-card.ambient-evening, .clock-card.ambient-night {
-      --text: #f0eff8;
-      --muted: #a4a3bc;
-      --border: rgba(255, 255, 255, 0.15);
-    }
-    
-    [data-theme="dark"] .clock-card.ambient-evening, [data-theme="dark"] .clock-card.ambient-night { background: rgba(18, 18, 29, 0.75); }
-    [data-theme="light"] .clock-card.ambient-evening, [data-theme="light"] .clock-card.ambient-night { background: rgba(15, 15, 24, 0.85); }
-
-    .card-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      z-index: 2;
-    }
-
-    .city-identity {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .status-orb {
-      font-size: 22px;
-      line-height: 1;
-    }
-
-    .city-name {
-      font-family: 'Space Grotesk', sans-serif;
-      font-size: 20px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
-    }
-
-    .tz-info {
-      font-size: 12px;
-      color: var(--muted);
-      font-family: 'JetBrains Mono', monospace;
-      margin-top: 2px;
-    }
-
-    .date-badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      background: rgba(124, 109, 250, 0.1);
-      border: 1px solid var(--border);
-      color: var(--text);
-      z-index: 2;
-    }
-
-    .time-display-row {
-      display: flex;
-      align-items: baseline;
-      gap: 2px;
-      z-index: 2;
-    }
-
-    .input-time-engine {
-      display: inline-flex;
-      align-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 38px;
-      font-weight: 700;
-      letter-spacing: -0.04em;
-      color: var(--text);
-    }
-
-    .input-time-engine input {
-      background: transparent;
-      border: 1px solid transparent;
-      font-family: inherit;
-      font-size: inherit;
-      font-weight: inherit;
-      color: var(--text);
-      width: 58px;
-      padding: 0;
-      text-align: center;
-      outline: none;
-      border-radius: 8px;
-      transition: background-color 0.2s;
-    }
-
+    .time-display-row { display: flex; align-items: baseline; gap: 2px; z-index: 2; position: relative; }
+    .input-time-engine { display: inline-flex; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 38px; font-weight: 700; letter-spacing: -0.04em; }
+    .input-time-engine input { background: transparent; border: 1px solid transparent; font-family: inherit; font-size: inherit; font-weight: inherit; color: var(--text); width: 58px; padding: 0; text-align: center; outline: none; border-radius: 8px; transition: background-color 0.2s; }
     .input-time-engine input:focus { background: rgba(124, 109, 250, 0.15); }
-
-    .divider-dots {
-      animation: flashDot 2s infinite;
-      user-select: none;
-      opacity: 0.8;
-      padding: 0 1px;
-    }
-
+    .time-separator { animation: flashDot 2s infinite; padding: 0 1px; }
     @keyframes flashDot { 0%, 100% { opacity: 1; } 50% { opacity: 0.2; } }
-
-    .seconds-counter {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 18px;
-      font-weight: 500;
-      color: var(--muted);
-      font-variant-numeric: tabular-nums;
-      margin-left: 4px;
-    }
-
-    .ampm-trigger {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--accent);
-      text-transform: uppercase;
-      cursor: pointer;
-      user-select: none;
-      padding: 4px 6px;
-      border-radius: 6px;
-      transition: var(--transition-smooth);
-      margin-left: 4px;
-    }
-
+    .seconds-counter { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 500; color: var(--muted); margin-left: 4px; }
+    .ampm-trigger { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--accent); padding: 4px 6px; border-radius: 6px; cursor: pointer; margin-left: 4px; }
     .ampm-trigger:hover { background: rgba(124, 109, 250, 0.15); }
 
-    .card-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid var(--border);
-      padding-top: 16px;
-      font-size: 12px;
-      z-index: 2;
-    }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 16px; margin-top: 20px; z-index: 2; position: relative; }
+    .day-pill { padding: 4px 10px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; background: rgba(0,0,0,0.05); color: var(--muted); border: 1px solid var(--border); }
+    .day-pill.ahead { color: var(--accent2); background: rgba(240,160,90,0.06); border-color: rgba(240,160,90,0.15); }
+    .day-pill.behind { color: var(--red); background: rgba(240,90,90,0.06); border-color: rgba(240,90,90,0.15); }
 
-    .day-pill {
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      background: rgba(0, 0, 0, 0.05);
-      color: var(--muted);
-      border: 1px solid var(--border);
-    }
-
-    .day-pill.ahead { color: var(--accent2); background: rgba(240,160,90,0.06); border: 1px solid rgba(240,160,90,0.15); }
-    .day-pill.behind { color: var(--red); background: rgba(240,90,90,0.06); border: 1px solid rgba(240,90,90,0.15); }
-
-    .footer-actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .home-btn, .remove-btn {
-      background: transparent;
-      border: none;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      opacity: 0.5;
-      padding: 4px 8px;
-      border-radius: 6px;
-      color: var(--text);
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      transition: var(--transition-smooth);
-    }
-
-    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; font-weight: 700; }
+    .action-icons { display: flex; gap: 4px; }
+    .home-btn, .remove-btn { background: transparent; border: none; font-size: 12px; font-weight: 600; cursor: pointer; opacity: 0.5; padding: 4px 8px; border-radius: 6px; color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; transition: var(--transition-smooth); }
+    .clock-card.is-home .home-btn { color: var(--accent2); opacity: 1; }
     .remove-btn { color: var(--red); }
-
-    .clock-card:hover .home-btn,
-    .clock-card:hover .remove-btn { opacity: 0.8; }
+    .clock-card:hover .home-btn, .clock-card:hover .remove-btn { opacity: 0.8; }
     .home-btn:hover, .remove-btn:hover { opacity: 1 !important; background: rgba(124, 109, 250, 0.08); }
 
-    #toast {
-      position: fixed;
-      bottom: 32px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--surface2);
-      border: 1px solid var(--border-hover);
-      color: var(--text);
-      padding: 12px 24px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-family: 'JetBrains Mono', monospace;
-      opacity: 0;
-      transition: var(--transition-smooth);
-      pointer-events: none;
-      z-index: 999;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    }
-
+    #toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--surface2); border: 1px solid var(--border-hover); color: var(--text); padding: 12px 24px; border-radius: 12px; font-size: 13px; font-family: 'JetBrains Mono', monospace; opacity: 0; transition: var(--transition-smooth); pointer-events: none; z-index: 999; }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
     @media (max-width: 768px) {
-      body { padding: 24px 16px 60px; }
       header { flex-direction: row; justify-content: space-between; align-items: center; }
-      .header-right { width: auto; justify-content: flex-end; }
       .search-wrap { width: 260px; }
-      .timeline-bottom-controls { flex-direction: column; align-items: stretch; }
-      .utility-actions { width: 100%; justify-content: space-between; }
+      .timeline-bottom-controls { flex-direction: column; align-items: stretch; justify-content: flex-end; }
+      .action-group { width: 100%; justify-content: space-between; }
     }
-
     @media (max-width: 600px) {
       header { flex-direction: column; align-items: flex-start; gap: 16px; }
-      .header-right { width: 100%; justify-content: space-between; }
       .search-wrap { width: 100%; }
-      .date-nav-matrix { justify-content: space-between; }
-      .date-step-btn { flex: 1; }
     }
   </style>
 </head>
@@ -684,12 +184,8 @@
 <div class="container">
   <header>
     <div class="brand">
-      <h1>
-        <span class="logo-icon">🌐</span>
-        <span class="brand-name">Zone<span class="brand-dot">Sync</span></span>
-      </h1>
+      <h1><span class="logo-icon">🌐</span> <span class="brand-name">Zone<span class="brand-dot">Sync</span></span></h1>
     </div>
-
     <div class="header-right">
       <div class="theme-toggle" onclick="toggleTheme()" title="Switch canvas lighting profiles">
         <span class="theme-toggle-label" id="themeLabel">Dark mode</span>
@@ -697,13 +193,11 @@
           <div class="toggle-thumb" id="toggleThumb">🌙</div>
         </div>
       </div>
-
       <div class="search-wrap">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <input type="text" id="citySearch" placeholder="Type city, region, or terminal node..."
-          autocomplete="off" oninput="debounceSearch(this.value)" onkeydown="handleSearchKey(event)" />
+        <input type="text" id="citySearch" placeholder="Type city, region, or terminal node..." autocomplete="off" oninput="debounceSearch(this.value)" onkeydown="handleSearchKey(event)" />
         <div id="suggestions"></div>
       </div>
     </div>
@@ -714,22 +208,14 @@
       <span class="timeline-label" id="scrubberLabel">⏱ Home Time Core Matrix</span>
       <span id="sliderDisplay">—</span>
     </div>
-    
     <div class="tick-row" id="timelineTicks">
       <span>12 AM</span><span>6 AM</span><span>12 PM</span><span>6 PM</span><span>11:59 PM</span>
     </div>
-    
-    <input type="range" id="masterSlider" class="time-slider" min="0" max="1439" value="0"
-      oninput="onSliderChange()" />
+    <input type="range" id="masterSlider" class="time-slider" min="0" max="1439" value="0" oninput="onSliderChange()" />
     
     <div class="timeline-bottom-controls">
-      <div class="date-nav-matrix">
-        <button class="date-step-btn" id="day-minus-1" onclick="setDateOffset(-1)">-1 Day</button>
-        <button class="date-step-btn is-active" id="day-0" onclick="setDateOffset(0)">Today</button>
-        <button class="date-step-btn" id="day-plus-1" onclick="setDateOffset(1)">+1 Day</button>
-      </div>
-      <div class="utility-actions">
-        <button class="utility-btn" onclick="copyTimelineToClipboard()" title="Copy current time setup to clipboard">
+      <div class="action-group">
+        <button class="utility-btn" onclick="copyTimelineToClipboard()">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
           Copy Times
         </button>
@@ -759,11 +245,8 @@ window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; })
 
 class Particle {
   constructor() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
-    this.size = Math.random() * 2 + 0.5;
-    this.baseX = this.x;
-    this.baseY = this.y;
+    this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+    this.size = Math.random() * 2 + 0.5; this.baseX = this.x; this.baseY = this.y;
     this.density = (Math.random() * 30) + 10;
   }
   draw() {
@@ -788,14 +271,11 @@ function initParticles() {
 }
 initParticles(); window.addEventListener('resize', initParticles);
 
-// Accessibility Check & Tab Background Pause
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let animationFrameId;
 
 function animateParticles() {
-  if (prefersReducedMotion) return;
-  if (document.visibilityState !== 'visible') return; 
-
+  if (prefersReducedMotion || document.visibilityState !== 'visible') return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < particles.length; i++) { particles[i].update(); particles[i].draw(); }
   animationFrameId = requestAnimationFrame(animateParticles);
@@ -809,7 +289,6 @@ let baseUTCms = null;
 let baseLocalMs = null;
 let usingOnlineTime = false;
 let scrubOffsetMinutes = 0;
-let crossDayMinutesOffset = 0; 
 let isScrubbing = false;
 let activeSuggestionIndex = -1; 
 let currentSuggestions = [];    
@@ -847,9 +326,7 @@ async function initializeClientLocation() {
       homeCityIana = geoData.timezone;
       trackedCities.push(userCity);
     }
-  } catch (error) { 
-    console.warn("Client location lookup faulted. Using fallback nodes."); 
-  }
+  } catch (error) { console.warn("Client location lookup faulted. Using fallback nodes."); }
   
   if (trackedCities.length === 0) {
     homeCityIana = "Asia/Kolkata";
@@ -859,7 +336,6 @@ async function initializeClientLocation() {
   OFFLINE_FALLBACK_NODES.forEach(fb => {
     if (!trackedCities.some(c => c.iana === fb.iana)) trackedCities.push(fb);
   });
-  
   saveStateToCache();
 }
 
@@ -890,7 +366,7 @@ function getCurrentUTCms() {
 }
 
 function getCityMinutes(city, utcMs) {
-  const totalOffset = (scrubOffsetMinutes + crossDayMinutesOffset) * 60_000;
+  const totalOffset = scrubOffsetMinutes * 60_000;
   const date = new Date(utcMs + totalOffset);
   const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: city.iana, hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false, day: 'numeric'
@@ -902,7 +378,7 @@ function getCityMinutes(city, utcMs) {
 }
 
 function getDayOffset(city, utcMs) {
-  const totalOffset = (scrubOffsetMinutes + crossDayMinutesOffset) * 60_000;
+  const totalOffset = scrubOffsetMinutes * 60_000;
   const effectiveMs = utcMs + totalOffset;
   const getDayNum = (tz) => {
     const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, day: 'numeric' }).formatToParts(new Date(effectiveMs));
@@ -914,7 +390,7 @@ function getDayOffset(city, utcMs) {
 }
 
 function getFormattedCalendarDate(iana, utcMs) {
-  const totalOffset = (scrubOffsetMinutes + crossDayMinutesOffset) * 60_000;
+  const totalOffset = scrubOffsetMinutes * 60_000;
   return new Intl.DateTimeFormat('en-US', { timeZone: iana, weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(utcMs + totalOffset));
 }
 
@@ -957,7 +433,7 @@ function renderClocks() {
     const homeAmPm = homeParts.hours >= 12 ? 'PM' : 'AM';
     const homeH12 = (homeParts.hours % 12) || 12;
     labelText.textContent = `⏱ Home Time Core Matrix — [${homeTarget.name.split(',')[0]}]`;
-    sliderDisplay.textContent = isScrubbing ? `Current Time: ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}` : `Live Time: ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}`;
+    sliderDisplay.textContent = isScrubbing ? `Simulated Pivot: ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}` : `Live Tracking — ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}`;
   }
 
   const activeId = document.activeElement ? document.activeElement.id : null;
@@ -1066,7 +542,7 @@ function updateSliderElement() {
   if (baseUTCms === null) return;
   const utcMs = getCurrentUTCms();
   const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
-  const targetDate = new Date(utcMs + (scrubOffsetMinutes + crossDayMinutesOffset) * 60_000);
+  const targetDate = new Date(utcMs + scrubOffsetMinutes * 60_000);
   const parts = new Intl.DateTimeFormat('en-US', { timeZone: homeTarget.iana, hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(targetDate);
   document.getElementById('masterSlider').value = (parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10) % 24) * 60 + parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
 }
@@ -1079,23 +555,15 @@ function onSliderChange() {
   const sliderVal = parseInt(document.getElementById('masterSlider').value, 10);
   const utcMs = getCurrentUTCms();
   const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
-  scrubOffsetMinutes = (sliderVal - getTimezoneOffsetMinutes(homeTarget.iana, utcMs)) - (new Date(utcMs).getUTCHours() * 60 + new Date(utcMs).getUTCMinutes()) - crossDayMinutesOffset;
-  renderClocks();
-}
-
-function setDateOffset(days) {
-  isScrubbing = true;
-  crossDayMinutesOffset = days * 1440;
-  document.querySelectorAll('.date-step-btn').forEach(btn => btn.classList.remove('is-active'));
-  document.getElementById(`day-${days}`).classList.add('is-active');
+  scrubOffsetMinutes = (sliderVal - getTimezoneOffsetMinutes(homeTarget.iana, utcMs)) - (new Date(utcMs).getUTCHours() * 60 + new Date(utcMs).getUTCMinutes());
   renderClocks();
 }
 
 function resetToNow() {
-  isScrubbing = false; scrubOffsetMinutes = 0; crossDayMinutesOffset = 0;
-  document.querySelectorAll('.date-step-btn').forEach(btn => btn.classList.remove('is-active'));
-  document.getElementById('day-0').classList.add('is-active');
-  syncSliderToNow(); renderClocks();
+  isScrubbing = false; 
+  scrubOffsetMinutes = 0; 
+  syncSliderToNow(); 
+  renderClocks();
 }
 
 // ── UTILITY: COPY TO CLIPBOARD ──
