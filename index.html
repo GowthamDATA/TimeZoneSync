@@ -64,7 +64,6 @@
       position: relative;
     }
 
-    /* Interactive Matrix Canvas Background Layer */
     #bgCanvas {
       position: fixed;
       inset: 0;
@@ -72,7 +71,6 @@
       pointer-events: auto;
     }
 
-    /* CSS Geometric Grid Layer Overlay */
     .grid-overlay {
       position: fixed;
       inset: 0;
@@ -100,6 +98,11 @@
       gap: 24px;
       margin-bottom: 40px;
       flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
     }
 
     .brand h1 {
@@ -333,10 +336,10 @@
 
     input[type="range"].time-slider::-webkit-slider-thumb {
       -webkit-appearance: none;
-      width: 26px; height: 26px;
+      width: 24px; height: 24px;
       border-radius: 50%;
       background: var(--accent);
-      border: 4px solid var(--bg);
+      border: 4px solid var(--surface2);
       box-shadow: 0 0 16px rgba(124, 109, 250, 0.6);
       cursor: pointer;
       transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -421,12 +424,12 @@
       100% { border-radius: 70% 30% 52% 48% / 60% 40% 60% 40%; transform: translate(-20px, 20px) scale(1.15); }
     }
 
-    .clock-card.ambient-morning::after   { background: linear-gradient(135deg, #ff9d6c, #ffdb8b); opacity: 0.28; }
-    .clock-card.ambient-afternoon::after { background: linear-gradient(135deg, #4facfe, #00f2fe); opacity: 0.24; }
-    .clock-card.ambient-evening::after   { background: linear-gradient(135deg, #f857a6, #ff5858); opacity: 0.32; }
-    .clock-card.ambient-night::after     { background: linear-gradient(135deg, #30197d, #ec38bc); opacity: 0.45; }
+    .clock-card.ambient-morning::after   { background: linear-gradient(135deg, #ff9d6c, #ffdb8b); opacity: 0.25; }
+    .clock-card.ambient-afternoon::after { background: linear-gradient(135deg, #4facfe, #00f2fe); opacity: 0.22; }
+    .clock-card.ambient-evening::after   { background: linear-gradient(135deg, #f857a6, #ff5858); opacity: 0.28; }
+    .clock-card.ambient-night::after     { background: linear-gradient(135deg, #30197d, #ec38bc); opacity: 0.35; }
 
-    /* High-contrast adaptive system blocks */
+    /* High-contrast adaptive layout systems */
     .clock-card.ambient-morning, .clock-card.ambient-afternoon {
       --text: #0f0f1a;
       --muted: #4b4b5a;
@@ -620,7 +623,6 @@
     .clock-card:hover .remove-btn { opacity: 0.8; }
     .home-btn:hover, .remove-btn:hover { opacity: 1 !important; background: rgba(124, 109, 250, 0.08); }
 
-    /* Toast Overlays */
     #toast {
       position: fixed;
       bottom: 32px; left: 50%;
@@ -716,7 +718,6 @@
 // ── ANIMATED BACKGROUND INTERACTIVE MATRIX ENGINE ──
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas.getContext('2d');
-
 let particles = [];
 const mouse = { x: null, y: null, radius: 120 };
 
@@ -727,15 +728,8 @@ function resizeCanvas() {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-window.addEventListener('mousemove', (e) => {
-  mouse.x = e.clientX;
-  mouse.y = e.clientY;
-});
-
-window.addEventListener('mouseleave', () => {
-  mouse.x = null;
-  mouse.y = null;
-});
+window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
+window.addEventListener('mouseleave', () => { mouse.x = null; mouse.y = null; });
 
 class Particle {
   constructor() {
@@ -745,44 +739,25 @@ class Particle {
     this.baseX = this.x;
     this.baseY = this.y;
     this.density = (Math.random() * 30) + 10;
-    this.color = document.documentElement.getAttribute('data-theme') === 'light' 
-      ? 'rgba(124, 109, 250, 0.15)' 
-      : 'rgba(124, 109, 250, 0.25)';
   }
   draw() {
-    ctx.fillStyle = this.color;
+    ctx.fillStyle = document.documentElement.getAttribute('data-theme') === 'light' ? 'rgba(124, 109, 250, 0.12)' : 'rgba(124, 109, 250, 0.22)';
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
     ctx.closePath();
     ctx.fill();
   }
   update() {
-    this.color = document.documentElement.getAttribute('data-theme') === 'light' 
-      ? 'rgba(124, 109, 250, 0.12)' 
-      : 'rgba(124, 109, 250, 0.22)';
-      
     let dx = mouse.x - this.x;
     let dy = mouse.y - this.y;
     let distance = Math.hypot(dx, dy);
-    
     if (distance < mouse.radius && mouse.x !== null) {
-      let forceDirectionX = dx / distance;
-      let forceDirectionY = dy / distance;
-      let maxDistance = mouse.radius;
-      let force = (maxDistance - distance) / maxDistance;
-      let directionX = forceDirectionX * force * this.density;
-      let directionY = forceDirectionY * force * this.density;
-      this.x -= directionX;
-      this.y -= directionY;
+      let force = (mouse.radius - distance) / mouse.radius;
+      this.x -= (dx / distance) * force * this.density;
+      this.y -= (dy / distance) * force * this.density;
     } else {
-      if (this.x !== this.baseX) {
-        let dx = this.x - this.baseX;
-        this.x -= dx / 15;
-      }
-      if (this.y !== this.baseY) {
-        let dy = this.y - this.baseY;
-        this.y -= dy / 15;
-      }
+      if (this.x !== this.baseX) this.x -= (this.x - this.baseX) / 15;
+      if (this.y !== this.baseY) this.y -= (this.y - this.baseY) / 15;
     }
   }
 }
@@ -790,55 +765,21 @@ class Particle {
 function initParticles() {
   particles = [];
   const numberOfParticles = (canvas.width * canvas.height) / 9000;
-  for (let i = 0; i < numberOfParticles; i++) {
-    particles.push(new Particle());
-  }
+  for (let i = 0; i < numberOfParticles; i++) particles.push(new Particle());
 }
 initParticles();
 window.addEventListener('resize', initParticles);
 
 function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  for (let i = 0; i < particles.length; i++) {
-    particles[i].update();
-    particles[i].draw();
-  }
+  for (let i = 0; i < particles.length; i++) { particles[i].update(); particles[i].draw(); }
   requestAnimationFrame(animateParticles);
 }
 animateParticles();
 
-// ── THEME INTERACTIVE MANAGEMENT ────────────────
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  const track = document.getElementById('toggleTrack');
-  const thumb = document.getElementById('toggleThumb');
-  const label = document.getElementById('themeLabel');
-  if (isDark) {
-    track.classList.remove('on');
-    thumb.textContent = '☀️';
-    label.textContent = 'Light mode';
-    localStorage.setItem('zonesync-theme', 'light');
-  } else {
-    track.classList.add('on');
-    thumb.textContent = '🌙';
-    label.textContent = 'Dark mode';
-    localStorage.setItem('zonesync-theme', 'dark');
-  }
-  renderClocks();
-}
-
-// ── GLOBAL TIME DATA ARCHITECTURE STATE ─────────
-let trackedCities = [
-  { name: "Bengaluru, India", zone: "IST",  iana: "Asia/Kolkata" },
-  { name: "London, United Kingdom", zone: "GMT",  iana: "Europe/London" },
-  { name: "New York, USA",  zone: "EST",  iana: "America/New_York" },
-  { name: "Los Angeles, USA", zone: "PST", iana: "America/Los_Angeles" },
-  { name: "Tokyo, Japan",  zone: "JST",  iana: "Asia/Tokyo" }
-];
-
-let homeCityIana = "Asia/Kolkata"; 
+// ── GLOBAL DYNAMIC GEOLOCATION CONFIGURATOR ──
+let trackedCities = [];
+let homeCityIana = ""; 
 let baseUTCms = null;
 let baseLocalMs = null;
 let usingOnlineTime = false;
@@ -847,6 +788,44 @@ let isScrubbing = false;
 let activeSuggestionIndex = -1; 
 let currentSuggestions = [];    
 let debounceTimer;              
+
+async function initializeClientLocation() {
+  try {
+    // Query zero-authentication location pipeline dynamically
+    const geoResponse = await fetch('https://ipapi.co/json/');
+    const geoData = await geoResponse.json();
+    
+    if (geoData && geoData.timezone) {
+      const userCity = {
+        name: `${geoData.city}, ${geoData.region_code || geoData.region}, ${geoData.country_code}`,
+        zone: geoData.timezone.split('/').pop().replace(/_/g, ' '),
+        iana: geoData.timezone
+      };
+      
+      homeCityIana = geoData.timezone;
+      trackedCities.push(userCity);
+    }
+  } catch (error) {
+    console.warn("Client geolocation lookup faulted. Applying global defaults.");
+  }
+  
+  // Dynamic fallback layer injection array
+  const fallbacks = [
+    { name: "London, England, GB",      zone: "London",      iana: "Europe/London" },
+    { name: "New York, NY, US",         zone: "New York",    iana: "America/New_York" },
+    { name: "Los Angeles, CA, US",      zone: "Los Angeles", iana: "America/Los_Angeles" },
+    { name: "Tokyo, Tokyo, JP",         zone: "Tokyo",       iana: "Asia/Tokyo" }
+  ];
+  
+  if (trackedCities.length === 0) {
+    homeCityIana = "Europe/London";
+    trackedCities.push(fallbacks[0]);
+  }
+  
+  fallbacks.forEach(fb => {
+    if (!trackedCities.some(c => c.iana === fb.iana)) trackedCities.push(fb);
+  });
+}
 
 // ── SYNC PORT ROUTINES ──────────────────────────
 async function fetchOnlineTime() {
@@ -868,7 +847,6 @@ async function fetchOnlineTime() {
       return;
     } catch (e) {}
   }
-
   baseUTCms = Date.now();
   baseLocalMs = performance.now();
   usingOnlineTime = false;
@@ -882,9 +860,7 @@ function getCurrentUTCms() {
 function getCityMinutes(city, utcMs) {
   const date = new Date(utcMs + scrubOffsetMinutes * 60_000);
   const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: city.iana,
-    hour: 'numeric', minute: 'numeric', second: 'numeric',
-    hour12: false, day: 'numeric'
+    timeZone: city.iana, hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false, day: 'numeric'
   }).formatToParts(date);
   const get = type => parseInt(parts.find(p => p.type === type)?.value || '0');
   let h = get('hour'); const m = get('minute'); const s = get('second');
@@ -894,30 +870,19 @@ function getCityMinutes(city, utcMs) {
 
 function getDayOffset(city, utcMs) {
   const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
-  
   const getDayNum = (tz) => {
     const parts = new Intl.DateTimeFormat('en-US', { timeZone: tz, day: 'numeric' }).formatToParts(new Date(effectiveMs));
     return parseInt(parts.find(p => p.type === 'day')?.value || '0', 10);
   };
-
-  const targetDay = getDayNum(city.iana);
-  const utcDay = getDayNum('UTC');
-  
-  let diff = targetDay - utcDay;
+  let diff = getDayNum(city.iana) - getDayNum('UTC');
   if (diff > 1) diff = -1;
   if (diff < -1) diff = 1;
-  
   return diff;
 }
 
 function getFormattedCalendarDate(iana, utcMs) {
   const effectiveMs = utcMs + scrubOffsetMinutes * 60_000;
-  return new Intl.DateTimeFormat('en-US', {
-    timeZone: iana,
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric'
-  }).format(new Date(effectiveMs));
+  return new Intl.DateTimeFormat('en-US', { timeZone: iana, weekday: 'short', month: 'short', day: 'numeric' }).format(new Date(effectiveMs));
 }
 
 function fmt2(n) { return String(n).padStart(2, '0'); }
@@ -931,20 +896,9 @@ function getUTCOffsetStr(ianaZone) {
 
 function getTimezoneOffsetMinutes(iana, baseMs) {
   const d = new Date(baseMs);
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: iana,
-    hour: 'numeric', minute: 'numeric', hour12: false
-  }).formatToParts(d);
-  const hZone = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-  const mZone = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-
-  const hUtc = d.getUTCHours();
-  const mUtc = d.getUTCMinutes();
-
-  let localTotal = hZone * 60 + mZone;
-  let utcTotal = hUtc * 60 + mUtc;
-
-  let diff = localTotal - utcTotal;
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: iana, hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(d);
+  let localTotal = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10) * 60 + parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+  let diff = localTotal - (d.getUTCHours() * 60 + d.getUTCMinutes());
   if (diff > 720) diff -= 1440;
   if (diff < -720) diff += 1440;
   return diff;
@@ -971,10 +925,7 @@ function renderClocks() {
     const homeAmPm = homeParts.hours >= 12 ? 'PM' : 'AM';
     const homeH12 = (homeParts.hours % 12) || 12;
     labelText.textContent = `⏱ Home Time Core Matrix — [${homeTarget.name.split(',')[0]}]`;
-    
-    sliderDisplay.textContent = isScrubbing
-      ? `Simulated Pivot: ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}`
-      : `Live Tracking — ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}`;
+    sliderDisplay.textContent = isScrubbing ? `Simulated Pivot: ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}` : `Live Tracking — ${fmt2(homeH12)}:${fmt2(homeParts.minutes)} ${homeAmPm}`;
   }
 
   const activeId = document.activeElement ? document.activeElement.id : null;
@@ -989,7 +940,6 @@ function renderClocks() {
     const utcStr = getUTCOffsetStr(city.iana);
     const dateLabel = getFormattedCalendarDate(city.iana, utcMs);
     const isHome = city.iana === homeCityIana;
-
     const weatherMeta = getAtmosphericClass(hours);
 
     let dayPillHtml = `<span class="day-pill">Same cycle</span>`;
@@ -1011,11 +961,9 @@ function renderClocks() {
         <div class="time-display-row">
           <div class="time-input-container">
             <div class="input-time-engine">
-              <input type="text" maxlength="2" id="h-${i}" value="${fmt2(h12)}" 
-                onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'h')" onblur="commitTimeInput(${i})">
+              <input type="text" maxlength="2" id="h-${i}" value="${fmt2(h12)}" onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'h')" onblur="commitTimeInput(${i})">
               <span class="time-separator divider-dots">:</span>
-              <input type="text" maxlength="2" id="m-${i}" value="${fmt2(minutes)}" 
-                onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'm')" onblur="commitTimeInput(${i})">
+              <input type="text" maxlength="2" id="m-${i}" value="${fmt2(minutes)}" onfocus="this.select()" onkeydown="handleTimeInput(event, ${i}, 'm')" onblur="commitTimeInput(${i})">
             </div>
           </div>
           <span class="seconds-counter">${fmt2(seconds)}</span>
@@ -1033,14 +981,10 @@ function renderClocks() {
 
   if (activeId) {
     const el = document.getElementById(activeId);
-    if (el) {
-      el.focus();
-      if (selectionStart !== null) el.setSelectionRange(selectionStart, selectionStart);
-    }
+    if (el) { el.focus(); if (selectionStart !== null) el.setSelectionRange(selectionStart, selectionStart); }
   }
 }
 
-// ── TIME CONVERTER COMPUTATION CHANNELS ─────────
 function handleTimeInput(e, cityIndex, type) {
   if (e.key === 'Enter') { e.target.blur(); return; }
   if (!/[0-9]/.test(e.key) && e.key !== 'Backspace' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab') {
@@ -1055,7 +999,6 @@ function commitTimeInput(cityIndex) {
 
   const hVal = parseInt(hInput.value) || 12;
   const mVal = parseInt(mInput.value) || 0;
-  
   const city = trackedCities[cityIndex];
   const utcMs = getCurrentUTCms();
   const currentParts = getCityMinutes(city, utcMs);
@@ -1065,10 +1008,7 @@ function commitTimeInput(cityIndex) {
   if (currentAmPm === 'PM') targetHours += 12;
   
   isScrubbing = true;
-  const currentCityMinutes = currentParts.hours * 60 + currentParts.minutes;
-  const targetCityMinutes = targetHours * 60 + mVal;
-  
-  scrubOffsetMinutes += (targetCityMinutes - currentCityMinutes);
+  scrubOffsetMinutes += ((targetHours * 60 + mVal) - (currentParts.hours * 60 + currentParts.minutes));
   updateSliderElement();
   renderClocks();
 }
@@ -1081,205 +1021,103 @@ function toggleAmPm(cityIndex) {
   renderClocks();
 }
 
-function setHomeBase(index) {
-  homeCityIana = trackedCities[index].iana;
-  updateSliderElement();
-  renderClocks();
-}
+function setHomeBase(index) { homeCityIana = trackedCities[index].iana; updateSliderElement(); renderClocks(); }
 
-// ── SYNCHRONIZED TIMELINE UPDATER FLOWS ─────────
 function updateSliderElement() {
   if (baseUTCms === null) return;
   const utcMs = getCurrentUTCms();
   const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
-  
   const targetDate = new Date(utcMs + scrubOffsetMinutes * 60_000);
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: homeTarget.iana,
-    hour: 'numeric', minute: 'numeric', hour12: false
-  }).formatToParts(targetDate);
-  
-  const hours = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
-  const minutes = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
-  
-  document.getElementById('masterSlider').value = (hours % 24) * 60 + minutes;
+  const parts = new Intl.DateTimeFormat('en-US', { timeZone: homeTarget.iana, hour: 'numeric', minute: 'numeric', hour12: false }).formatToParts(targetDate);
+  document.getElementById('masterSlider').value = (parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10) % 24) * 60 + parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
 }
 
-function syncSliderToNow() {
-  if (baseUTCms === null) return;
-  updateSliderElement();
-}
+function syncSliderToNow() { if (baseUTCms === null) return; updateSliderElement(); }
 
 function onSliderChange() {
   if (baseUTCms === null) return;
   isScrubbing = true;
-  
   const sliderVal = parseInt(document.getElementById('masterSlider').value, 10);
   const utcMs = getCurrentUTCms();
   const homeTarget = trackedCities.find(c => c.iana === homeCityIana) || trackedCities[0];
-
-  const offsetFromUTC = getTimezoneOffsetMinutes(homeTarget.iana, utcMs);
-  const currentDate = new Date(utcMs);
-  const currentUTCMinutes = currentDate.getUTCHours() * 60 + currentDate.getUTCMinutes();
-  
-  let targetUTCMinutes = sliderVal - offsetFromUTC;
-  scrubOffsetMinutes = targetUTCMinutes - currentUTCMinutes;
-  
+  scrubOffsetMinutes = (sliderVal - getTimezoneOffsetMinutes(homeTarget.iana, utcMs)) - (new Date(utcMs).getUTCHours() * 60 + new Date(utcMs).getUTCMinutes());
   renderClocks();
 }
 
-function resetToNow() {
-  isScrubbing = false;
-  scrubOffsetMinutes = 0;
-  syncSliderToNow();
-  renderClocks();
-}
+function resetToNow() { isScrubbing = false; scrubOffsetMinutes = 0; syncSliderToNow(); renderClocks(); }
 
-// ── DEBOUNCED SEARCH STREAMS ──
-function debounceSearch(val) {
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => fetchGlobalCities(val), 300);
-}
+function debounceSearch(val) { clearTimeout(debounceTimer); debounceTimer = setTimeout(() => fetchGlobalCities(val), 300); }
 
 async function fetchGlobalCities(query) {
   const box = document.getElementById('suggestions');
   const q = query.trim().toLowerCase();
-  
   if (q.length < 2) { box.style.display = 'none'; activeSuggestionIndex = -1; return; }
 
   try {
     const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=6&language=en&format=json`);
     const data = await res.json();
+    if (!data.results || data.results.length === 0) { box.style.display = 'none'; activeSuggestionIndex = -1; return; }
 
-    if (!data.results || data.results.length === 0) {
-      box.style.display = 'none';
-      activeSuggestionIndex = -1;
-      return;
-    }
-
-    currentSuggestions = data.results
-      .filter(item => item.timezone)
-      .map(item => {
-        const regionToken = item.admin1 ? `${item.admin1}, ` : '';
-        return {
-          name: `${item.name}, ${regionToken}${item.country_code.toUpperCase()}`,
-          zone: item.timezone.split('/').pop().replace(/_/g, ' '),
-          iana: item.timezone
-        };
-      });
+    currentSuggestions = data.results.filter(item => item.timezone).map(item => {
+      const regionToken = item.admin1 ? `${item.admin1}, ` : '';
+      return { name: `${item.name}, ${regionToken}${item.country_code.toUpperCase()}`, zone: item.timezone.split('/').pop().replace(/_/g, ' '), iana: item.timezone };
+    });
 
     if (!currentSuggestions.length) { box.style.display = 'none'; return; }
-
-    box.innerHTML = currentSuggestions.map((c, idx) =>
-      `<div class="suggestion-item" id="sug-${idx}" onclick="addDynamicCity(${idx})">
-        <span>${c.name}</span>
-        <span class="tz-hint">${c.zone}</span>
-      </div>`
-    ).join('');
+    box.innerHTML = currentSuggestions.map((c, idx) => `<div class="suggestion-item" id="sug-${idx}" onclick="addDynamicCity(${idx})"><span>${c.name}</span><span class="tz-hint">${c.zone}</span></div>`).join('');
     box.style.display = 'block';
     activeSuggestionIndex = -1;
-
-  } catch (error) {
-    console.error("Geocoding connection network fault:", error);
-  }
+  } catch (error) { console.error("Geocoding network glitch:", error); }
 }
 
 function handleSearchKey(e) {
   const box = document.getElementById('suggestions');
   const items = box.querySelectorAll('.suggestion-item');
-  
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    if (activeSuggestionIndex < items.length - 1) {
-      activeSuggestionIndex++;
-      updateActiveSuggestionVisuals(items);
-    }
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    if (activeSuggestionIndex > 0) {
-      activeSuggestionIndex--;
-      updateActiveSuggestionVisuals(items);
-    }
-  } else if (e.key === 'Enter') {
-    if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) {
-      items[activeSuggestionIndex].click();
-    } else if (currentSuggestions.length > 0) {
-      addDynamicCity(0);
-    } else {
-      showToast("No matching global endpoints resolved.");
-    }
-  } else if (e.key === 'Escape') {
-    box.style.display = 'none';
-    activeSuggestionIndex = -1;
-  }
+  if (e.key === 'ArrowDown' && activeSuggestionIndex < items.length - 1) { e.preventDefault(); activeSuggestionIndex++; updateActiveSuggestionVisuals(items); }
+  else if (e.key === 'ArrowUp' && activeSuggestionIndex > 0) { e.preventDefault(); activeSuggestionIndex--; updateActiveSuggestionVisuals(items); }
+  else if (e.key === 'Enter') { if (activeSuggestionIndex >= 0 && items[activeSuggestionIndex]) items[activeSuggestionIndex].click(); else if (currentSuggestions.length > 0) addDynamicCity(0); }
+  else if (e.key === 'Escape') { box.style.display = 'none'; activeSuggestionIndex = -1; }
 }
 
-function updateActiveSuggestionVisuals(items) {
-  items.forEach((item, idx) => {
-    item.style.backgroundColor = (idx === activeSuggestionIndex) ? 'rgba(124, 109, 250, 0.15)' : '';
-  });
-}
+function updateActiveSuggestionVisuals(items) { items.forEach((item, idx) => { item.style.backgroundColor = (idx === activeSuggestionIndex) ? 'rgba(124, 109, 250, 0.15)' : ''; }); }
 
 function addDynamicCity(index) {
   const city = currentSuggestions[index];
-  if (city && !trackedCities.some(c => c.iana === city.iana && c.name === city.name)) {
-    trackedCities.push(city);
-    renderClocks();
-  }
+  if (city && !trackedCities.some(c => c.iana === city.iana && c.name === city.name)) { trackedCities.push(city); renderClocks(); }
   document.getElementById('citySearch').value = '';
   document.getElementById('suggestions').style.display = 'none';
   activeSuggestionIndex = -1;
 }
 
 function removeCity(i) {
-  if (trackedCities[i].iana === homeCityIana && trackedCities.length > 1) {
-    homeCityIana = trackedCities[i === 0 ? 1 : 0].iana;
-  }
-  trackedCities.splice(i, 1);
-  updateSliderElement();
+  if (trackedCities[i].iana === homeCityIana && trackedCities.length > 1) homeCityIana = trackedCities[i === 0 ? 1 : 0].iana;
+  trackedCities.splice(i, 1); updateSliderElement(); renderClocks();
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('toggleTrack').classList.toggle('on', !isDark);
+  document.getElementById('toggleThumb').textContent = isDark ? '☀️' : '🌙';
+  document.getElementById('themeLabel').textContent = isDark ? 'Light mode' : 'Dark mode';
+  localStorage.setItem('zonesync-theme', isDark ? 'light' : 'dark');
   renderClocks();
 }
 
-// ── TOAST OVERLAYS ──
-let toastTimer;
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
-}
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.search-wrap')) document.getElementById('suggestions').style.display = 'none';
-});
-
-// ── INITIALIZE ENVIRONMENT ──
+// ── BOOTSTRAP PIPELINE LAYER ──
 (async () => {
   const savedTheme = localStorage.getItem('zonesync-theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
-  
-  const track = document.getElementById('toggleTrack');
-  const thumb = document.getElementById('toggleThumb');
-  const label = document.getElementById('themeLabel');
-  
-  if (savedTheme === 'light') {
-    track.classList.remove('on');
-    thumb.textContent = '☀️';
-    label.textContent = 'Light mode';
-  } else {
-    track.classList.add('on');
-    thumb.textContent = '🌙';
-    label.textContent = 'Dark mode';
-  }
+  document.getElementById('toggleTrack').classList.toggle('on', savedTheme === 'dark');
+  document.getElementById('toggleThumb').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+  document.getElementById('themeLabel').textContent = savedTheme === 'dark' ? 'Dark mode' : 'Light mode';
 
+  await initializeClientLocation();
   await fetchOnlineTime();
   syncSliderToNow();
   renderClocks();
-  setInterval(() => {
-    if (!isScrubbing) syncSliderToNow();
-    renderClocks();
-  }, 1000);
+  setInterval(() => { if (!isScrubbing) syncSliderToNow(); renderClocks(); }, 1000);
 })();
 </script>
 </body>
